@@ -1,15 +1,34 @@
+// products.js
 export const products = [];
 
-// Fetch data from Google Apps Script and populate products
-fetch('https://script.google.com/macros/s/AKfycbzqLHSPfIRjN2_0hkqgxr-LbY2BTCCZtcxbK7vBUkjSDHYszDxHHfuBSJ2YbBPrtgyk2g/exec')
-  .then(res => res.json())
-  .then(json => {
+// Function to fetch and store products
+export const fetchAndStoreProducts = async () => {
+  try {
+    const res = await fetch(
+      'https://script.google.com/macros/s/AKfycbzqLHSPfIRjN2_0hkqgxr-LbY2BTCCZtcxbK7vBUkjSDHYszDxHHfuBSJ2YbBPrtgyk2g/exec'
+    );
+    const json = await res.json();
+
     if (json.data) {
-      products.push(...json.data); // Add all items to the products array
-      console.log('Products updated:', products);
+      // Update local array
+      products.length = 0; // Clear existing
+      products.push(...json.data);
+
+      // Save to localStorage
+      localStorage.setItem('products', JSON.stringify(products));
+      console.log('Products updated and saved to localStorage:', products);
     }
-  })
-  .catch(err => console.error('Error fetching data:', err));
+  } catch (err) {
+    console.error('Error fetching data:', err);
+  }
+};
+
+// Function to get products from localStorage
+export const getProductsFromLocalStorage = () => {
+  const stored = localStorage.getItem('products');
+  return stored ? JSON.parse(stored) : [];
+};
+
  /*
   const product = {
   id: "884fda91-7199-4585-824f-e2fff3068409",
