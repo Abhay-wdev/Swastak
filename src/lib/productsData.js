@@ -1,7 +1,6 @@
-// products.js
 export const products = [];
 
-// Function to fetch and store products
+// Function to fetch and store products in localStorage
 export const fetchAndStoreProducts = async () => {
   try {
     const res = await fetch(
@@ -9,14 +8,20 @@ export const fetchAndStoreProducts = async () => {
     );
     const json = await res.json();
 
-    if (json.data) {
-      // Update local array
-      products.length = 0; // Clear existing
+    if (json.data && Array.isArray(json.data)) {
+      // Clear existing products array
+      products.length = 0;
+      // Add fetched data to the array
       products.push(...json.data);
 
       // Save to localStorage
       localStorage.setItem('products', JSON.stringify(products));
-      console.log('Products updated and saved to localStorage:', products);
+
+      // ✅ Console log to check data
+      console.log('Products fetched from API:', json.data);
+      console.log('Products saved to localStorage:', getProductsFromLocalStorage());
+    } else {
+      console.warn('No data received from API.');
     }
   } catch (err) {
     console.error('Error fetching data:', err);
@@ -29,20 +34,5 @@ export const getProductsFromLocalStorage = () => {
   return stored ? JSON.parse(stored) : [];
 };
 
- /*
-  const product = {
-  id: "884fda91-7199-4585-824f-e2fff3068409",
-  name: "Channa masala",
-  category: "masala",
-  description: "Disc",
-  price: 80,
-  stockQuantity: 1000,
-  isActive: true,
-  imageUrls: ["img1", "img2", "img3"], // Converted from comma string to array
-  ingredients: "Imdgrents",
-  nutritionalBenefits: "benifitss",
-  faqs: ["f1", "f2", "f3", "f4", "f5"], // Converted from comma string to array
-  shippingAndReturns: "shipping",
-  lastUpdateTime: "2025-10-06T07:06:30.057Z"
-};
-*/
+// Call this function to fetch and store products
+fetchAndStoreProducts();
