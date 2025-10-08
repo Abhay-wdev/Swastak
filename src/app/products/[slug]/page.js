@@ -109,33 +109,38 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Main Product Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white  rounded-lg shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Image Gallery */}
-            <div className="lg:w-1/2">
-              <div className="bg-gray-100 rounded-lg overflow-hidden mb-4 flex items-center justify-center" style={{ height: '450px' }}>
-                <img
-                  src={images[selectedImageIndex] || images[0]}
-                  alt={product.name}
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-              {images.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2">
-                  {images.map((img, i) => (
-                    <img
-                      key={i}
-                      src={img}
-                      alt={`View ${i + 1}`}
-                      onClick={() => setSelectedImageIndex(i)}
-                      className={`w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition flex-shrink-0 ${
-                        selectedImageIndex === i ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+           {/* Image Gallery */}
+<div className="w-full  lg:w-1/2">
+  {/* Main Image */}
+  <div className="bg-gray-100 border rounded-lg overflow-hidden mb-4 flex items-center justify-center" >
+    <img
+      src={images[selectedImageIndex] || images[0]}
+      alt={product.name}
+      className="max-w-full max-h-full object-contain"
+    />
+  </div>
+
+  {/* Thumbnails */}
+  {images.length > 1 && (
+    <div className="flex gap-3 overflow-x-auto pb-2">
+      {images.map((img, i) => (
+        <img
+          key={i}
+          src={img}
+          alt={`View ${i + 1}`}
+          onClick={() => setSelectedImageIndex(i)}
+          className={`
+            w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition flex-shrink-0
+            ${selectedImageIndex === i ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'}
+          `}
+        />
+      ))}
+    </div>
+  )}
+</div>
+
 
             {/* Product Info */}
             <div className="lg:w-1/2">
@@ -157,33 +162,38 @@ export default function ProductDetailPage() {
                 <p className="text-sm text-gray-600">Inclusive of all taxes</p>
               </div>
 
-              {/* Weight & Stock */}
-              <div className="flex gap-4 mb-6">
-                {product.weight && (
-                  <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
-                    <span className="text-sm text-gray-600">Weight:</span>
-                    <span className="font-semibold text-gray-900">{product.weight}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
-                  <span className="text-sm text-gray-600">Stock:</span>
-                  <span className="font-semibold text-green-600">{product.stockQuantity} Available</span>
-                </div>
-              </div>
+             {/* Weight & Stock */}
+<div className="flex flex-wrap gap-4 mb-6">
+  {product.weight && (
+    <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg min-w-[120px]">
+      <span className="text-sm text-gray-600">Weight:</span>
+      <span className="font-semibold text-gray-900">{product.weight}</span>
+    </div>
+  )}
+  <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg min-w-[120px]">
+    <span className="text-sm text-gray-600">Stock:</span>
+    <span className="font-semibold text-green-600">{product.stockQuantity} Available</span>
+  </div>
+</div>
+
 
               {/* Highlights */}
               {highlights.length > 0 && highlights[0] !== '' && (
-                <div className="mb-6">
-                  <h3 className="font-semibold text-gray-900 mb-3">Key Highlights</h3>
-                  <ul className="space-y-2">
-                    {highlights.map((point, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
-                        <span className="text-gray-700">{point.trim()}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+               <div className="mb-6">
+  <h3 className="font-semibold text-gray-900 mb-3">Key Highlights</h3>
+  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 border p-2 rounded">
+    {highlights.map((point, i) => (
+      <li
+        key={i}
+        className="flex items-start gap-2 border p-2 rounded bg-gray-50"
+      >
+        <span className="text-green-600 mt-1">✓</span>
+        <span className="text-gray-700">{point.trim()}</span>
+      </li>
+    ))}
+  </ul>
+</div>
+
               )}
 
               {/* Quantity Selector */}

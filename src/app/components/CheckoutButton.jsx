@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { cartStorage } from '@/lib/localStorage';
+import { toast } from 'react-hot-toast';
 
 export default function CheckoutButton({ cart, total, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -12,33 +14,33 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
     address: '',
     city: '',
     state: '',
-    postalCode: '',
+    pincode: '',
     country: '',
-    paymentMethod: 'COD', // Default
+    paymentMethod: 'COD',
+    note: ''
   });
+
+  const router = useRouter(); // for redirecting
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const url = "https://script.google.com/macros/s/AKfycby0fNHbgMRUwHRsDgW-MCnE5OLVeib6KSKpuwE2609siCi_EPjPUapgp7twpXqAE3kAvQ/exec";
-
-    // Include Order Time (Client-side)
-    const orderTime = new Date().toISOString();
+    const url = "https://script.google.com/macros/s/AKfycbz9bspO3hxfoPeXnGEr3It_qk291qsPriIBp9x-v1P4eodfdcTC7XBvN4EUdKdyC4lgeg/exec";
 
     const formData = new URLSearchParams({
-      Name: customerInfo.name,
-      Email: customerInfo.email,
-      Phone: customerInfo.phone,
-      Address: customerInfo.address,
-      City: customerInfo.city,
-      State: customerInfo.state,
-      PostalCode: customerInfo.postalCode,
-      Country: customerInfo.country,
-      PaymentMethod: customerInfo.paymentMethod,
-      Cart: JSON.stringify(cart),
-      Total: total.toString(),
-      OrderDate: orderTime,
+      name: customerInfo.name,
+      email: customerInfo.email,
+      phone: customerInfo.phone,
+      address: customerInfo.address,
+      city: customerInfo.city,
+      state: customerInfo.state,
+      pincode: customerInfo.pincode,
+      country: customerInfo.country,
+      paymentMethod: customerInfo.paymentMethod,
+      cart: JSON.stringify(cart),
+      total: total.toString(),
+      note: customerInfo.note
     });
 
     try {
@@ -48,28 +50,44 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
         body: formData.toString(),
       });
 
-      const data = await res.text();
-      alert(data || '✅ Order placed successfully!');
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('Invalid response format');
+      }
 
-      // Clear cart and reset form
-      cartStorage.clear();
-      setCustomerInfo({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: '',
-        paymentMethod: 'COD',
-      });
-      setShowForm(false);
+      if (data.success) {
+        toast.success(data.message || "✅ Order placed successfully!");
+        
+        // Clear cart
+        cartStorage.clearCart();
 
-      if (onSuccess) onSuccess();
+        // Reset form
+        setCustomerInfo({
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          pincode: '',
+          country: '',
+          paymentMethod: 'COD',
+          note: ''
+        });
+
+        setShowForm(false);
+
+        if (onSuccess) onSuccess();
+
+        // Redirect to home page
+        router.push('/notfound');
+      } else {
+        toast.error(data.message || "🚫 Error placing order");
+      }
     } catch (error) {
-      console.error('Error submitting order:', error);
-      alert('❌ Failed to submit order. Please try again.');
+      toast.error("🚫 Something went wrong, please try again.");
     } finally {
       setLoading(false);
     }
@@ -89,11 +107,9 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 bg-white p-5 rounded-lg shadow-md border"
+      className="space-y-4 bg-white p-6 rounded-lg shadow-md border max-w-lg mx-auto"
     >
-      <h3 className="font-bold text-xl mb-3 text-gray-800">
-        🧾 Checkout Information
-      </h3>
+      <h3 className="font-bold text-xl mb-3 text-gray-800">🧾 Checkout Information</h3>
 
       {/* Customer Info */}
       <input
@@ -101,9 +117,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
         placeholder="Full Name"
         required
         value={customerInfo.name}
-        onChange={(e) =>
-          setCustomerInfo({ ...customerInfo, name: e.target.value })
-        }
+        onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
         className="w-full p-2 border rounded"
       />
       <input
@@ -111,9 +125,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
         placeholder="Email Address"
         required
         value={customerInfo.email}
-        onChange={(e) =>
-          setCustomerInfo({ ...customerInfo, email: e.target.value })
-        }
+        onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
         className="w-full p-2 border rounded"
       />
       <input
@@ -121,9 +133,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
         placeholder="Phone Number"
         required
         value={customerInfo.phone}
-        onChange={(e) =>
-          setCustomerInfo({ ...customerInfo, phone: e.target.value })
-        }
+        onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
         className="w-full p-2 border rounded"
       />
 
@@ -134,9 +144,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
         placeholder="Street Address / House No."
         required
         value={customerInfo.address}
-        onChange={(e) =>
-          setCustomerInfo({ ...customerInfo, address: e.target.value })
-        }
+        onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
         className="w-full p-2 border rounded"
       />
       <div className="grid grid-cols-2 gap-2">
@@ -145,9 +153,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
           placeholder="City"
           required
           value={customerInfo.city}
-          onChange={(e) =>
-            setCustomerInfo({ ...customerInfo, city: e.target.value })
-          }
+          onChange={(e) => setCustomerInfo({ ...customerInfo, city: e.target.value })}
           className="w-full p-2 border rounded"
         />
         <input
@@ -155,9 +161,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
           placeholder="State"
           required
           value={customerInfo.state}
-          onChange={(e) =>
-            setCustomerInfo({ ...customerInfo, state: e.target.value })
-          }
+          onChange={(e) => setCustomerInfo({ ...customerInfo, state: e.target.value })}
           className="w-full p-2 border rounded"
         />
       </div>
@@ -166,10 +170,8 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
           type="text"
           placeholder="Postal Code"
           required
-          value={customerInfo.postalCode}
-          onChange={(e) =>
-            setCustomerInfo({ ...customerInfo, postalCode: e.target.value })
-          }
+          value={customerInfo.pincode}
+          onChange={(e) => setCustomerInfo({ ...customerInfo, pincode: e.target.value })}
           className="w-full p-2 border rounded"
         />
         <input
@@ -177,23 +179,17 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
           placeholder="Country"
           required
           value={customerInfo.country}
-          onChange={(e) =>
-            setCustomerInfo({ ...customerInfo, country: e.target.value })
-          }
+          onChange={(e) => setCustomerInfo({ ...customerInfo, country: e.target.value })}
           className="w-full p-2 border rounded"
         />
       </div>
 
       {/* Payment Method */}
       <div className="mt-4">
-        <label className="block font-semibold text-gray-700 mb-1">
-          💳 Payment Method
-        </label>
+        <label className="block font-semibold text-gray-700 mb-1">💳 Payment Method</label>
         <select
           value={customerInfo.paymentMethod}
-          onChange={(e) =>
-            setCustomerInfo({ ...customerInfo, paymentMethod: e.target.value })
-          }
+          onChange={(e) => setCustomerInfo({ ...customerInfo, paymentMethod: e.target.value })}
           className="w-full p-2 border rounded"
         >
           <option value="COD">Cash on Delivery</option>
@@ -205,19 +201,15 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
 
       {/* Order Summary */}
       <div className="border-t pt-3 mt-4 text-sm text-gray-700">
-        <p>
-          <strong>🕓 Order Time:</strong> {new Date().toLocaleString()}
-        </p>
-        <p>
-          <strong>🛒 Total Amount:</strong> ₹{total}
-        </p>
+        <p><strong>🕓 Order Time:</strong> {new Date().toLocaleString()}</p>
+        <p><strong>🛒 Total Amount:</strong> ₹{total}</p>
       </div>
 
       {/* Buttons */}
       <div className="mt-4 space-y-2">
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || cart.length === 0} // disable if cart is empty
           className="w-full bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition font-bold disabled:bg-gray-400"
         >
           {loading ? 'Processing Order...' : '✅ Place Order'}

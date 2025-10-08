@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -36,15 +37,32 @@ const Header = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Update cart count on mount
   useEffect(() => {
-    setCartCount(cartStorage.getCartCount());
+    const updateCartCount = () => {
+      const newCount = cartStorage.getCartCount();
+      setCartCount(prev => (prev !== newCount ? newCount : prev));
+    };
 
-    // Listen for custom "cartUpdated" event
-    const handleCartUpdated = () => setCartCount(cartStorage.getCartCount());
-    window.addEventListener('cartUpdated', handleCartUpdated);
+    // Initial fetch
+    updateCartCount();
 
-    return () => window.removeEventListener('cartUpdated', handleCartUpdated);
+    // Custom event for cart updates
+    window.addEventListener('cartUpdated', updateCartCount);
+
+    // Listen for localStorage changes in other tabs
+    const handleStorageChange = (event) => {
+      if (event.key === 'ecommerce_cart') updateCartCount();
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // Auto-update every 3 seconds
+    const interval = setInterval(updateCartCount, 2000);
+
+    return () => {
+      window.removeEventListener('cartUpdated', updateCartCount);
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
   }, []);
 
   const menuItems = [
@@ -57,7 +75,7 @@ const Header = () => {
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto px-4 py-3 md:py-0">
-        {/* Mobile */}
+        {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between">
           <div className="flex items-center">
             <Image
@@ -71,14 +89,14 @@ const Header = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="relative">
+            <Link onClick={()=>setTimeout(() => setIsMenuOpen(false), 10)} href={'/cart'} className="relative">
               <FiShoppingCart className="text-gray-700 text-xl" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
-            </div>
+            </Link>
 
             <button onClick={toggleMenu} className="text-gray-700">
               {isMenuOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
@@ -86,7 +104,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile Menu */}
         <div
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuVisible ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
@@ -111,7 +129,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Desktop */}
+        {/* Desktop Header */}
         <div className="hidden md:flex items-center justify-between">
           <div className="flex items-center">
             <Image
@@ -140,15 +158,16 @@ const Header = () => {
                 ))}
               </ul>
             </nav>
-
-            <div className="relative">
+<Link href="/cart" className="relative">
+             
               <FiShoppingCart className="text-gray-700 text-xl" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
-            </div>
+             
+            </Link>
           </div>
         </div>
       </div>
