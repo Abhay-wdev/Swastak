@@ -54,7 +54,12 @@ export const cartStorage = {
 
   getCartTotal: () => {
     const cart = cartStorage.getCart();
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cart.reduce((total, item) => total + (item.disprice * item.quantity), 0);
+  },
+
+   getCartTotalPrise: () => {
+    const cart = cartStorage.getCart();
+    return cart.reduce((total, item) => total + (item.realprise * item.quantity), 0);
   },
 
   getCartCount: () => {

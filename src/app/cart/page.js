@@ -8,6 +8,7 @@ import Link from 'next/link';
 export default function CartPage() {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
+  const [totalPrise, setTotalPrise] = useState(0);
 
   useEffect(() => {
     loadCart();
@@ -17,6 +18,7 @@ export default function CartPage() {
     const cartData = cartStorage.getCart();
     setCart(cartData);
     setTotal(cartStorage.getCartTotal());
+    setTotalPrise(cartStorage.getCartTotalPrise());
   };
 
   const handleUpdateQuantity = (productId, quantity) => {
@@ -75,6 +77,10 @@ export default function CartPage() {
               <div className="flex justify-between text-xl font-bold">
                 <span>Total:</span>
                 <span>₹{total}</span>
+              </div>
+              <div className="flex justify-between text-xl text-green-600 font-bold">
+                <span>You have saved:</span>
+                <span>₹{totalPrise-total} </span>
               </div>
             </div>
             <CheckoutButton cart={cart} total={total} onSuccess={loadCart} />

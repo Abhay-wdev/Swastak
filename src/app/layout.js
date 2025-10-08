@@ -2,7 +2,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from './components/Navbar';
 import Header from './components/Header';
- 
+import { Toaster } from 'react-hot-toast'; // ✅ Import Toaster
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,11 +15,25 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar/>
-        <Header/>
-        <main className="min-h-screen">
-          {children}
-        </main>
+        {/* Navbar and Header */}
+        <Navbar />
+        <Header />
+
+        {/* Main content */}
+        <main className="min-h-screen">{children}</main>
+
+        {/* ✅ Toaster for toast notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            success: {
+              style: { background: '#10b981', color: '#fff' },
+            },
+            error: {
+              style: { background: '#ef4444', color: '#fff' },
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -1,70 +1,168 @@
 'use client';
 import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
-import { products } from '@/lib/productsData';
+import { products as defaultProducts } from '@/lib/productsData';
 import { cartStorage } from '@/lib/localStorage';
+import toast from 'react-hot-toast';
+import { Search } from 'lucide-react'; // optional icon for search input
+
+// Skeleton loader
+const SkeletonCard = () => (
+  <div className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse flex flex-col">
+    <div className="w-full h-64 bg-gray-300"></div>
+    <div className="p-4 flex flex-col flex-1 space-y-3">
+      <div className="h-6 bg-gray-300 rounded w-3/4"></div>
+      <div className="h-4 bg-gray-300 rounded w-full"></div>
+      <div className="h-4 bg-gray-300 rounded w-5/6"></div>
+      <div className="flex justify-between items-center mt-auto">
+        <div className="h-8 bg-gray-300 rounded w-24"></div>
+        <div className="h-4 bg-gray-300 rounded w-16"></div>
+      </div>
+      <div className="h-10 bg-gray-300 rounded w-full"></div>
+    </div>
+  </div>
+);
 
 export default function ProductsPage() {
   const [cart, setCart] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Filters
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  // Fetch products or load from localStorage
+  const fetchProducts = async () => {
+    setLoading(true);
+    const storedProducts = localStorage.getItem('products');
+
+    if (storedProducts) {
+      const parsedProducts = JSON.parse(storedProducts);
+      setProducts(parsedProducts);
+      setFilteredProducts(parsedProducts.filter(p => p.isActive));
+      setLoading(false);
+      return;
+    }
+
+    // Simulate fetching
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setProducts(defaultProducts);
+    setFilteredProducts(defaultProducts.filter(p => p.isActive));
+    localStorage.setItem('products', JSON.stringify(defaultProducts));
+    setLoading(false);
+  };
 
   useEffect(() => {
     setCart(cartStorage.getCart());
+    fetchProducts();
   }, []);
 
-  // Filter products by category
+  // Apply filters
   useEffect(() => {
-    if (selectedCategory === 'all') {
-      setFilteredProducts(products);
-    } else {
-      const filtered = products.filter(
-        (product) => product.category.toLowerCase() === selectedCategory.toLowerCase()
+    let tempProducts = products.filter(p => p.isActive); // always active
+
+    if (selectedCategory !== 'all') {
+      tempProducts = tempProducts.filter(
+        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase()
       );
-      setFilteredProducts(filtered);
     }
-  }, [selectedCategory]);
+
+    if (searchKeyword.trim()) {
+      const keyword = searchKeyword.toLowerCase();
+      tempProducts = tempProducts.filter(
+        (p) =>
+          p.name.toLowerCase().includes(keyword) ||
+          p.shortdisc.toLowerCase().includes(keyword) ||
+          p.description.toLowerCase().includes(keyword)
+      );
+    }
+
+    if (inStockOnly) {
+      tempProducts = tempProducts.filter((p) => p.stockQuantity > 0);
+    }
+
+    setFilteredProducts(tempProducts);
+  }, [selectedCategory, searchKeyword, inStockOnly, products]);
 
   const handleAddToCart = (product) => {
     const updatedCart = cartStorage.addToCart(product, 1);
     setCart(updatedCart);
-    alert(`${product.name} added to cart!`);
+    toast.success(`${product.name} added to cart!`);
   };
 
-  // Extract unique categories for filter dropdown
+  // Extract unique categories
   const categories = ['all', ...new Set(products.map((p) => p.category))];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-6 text-center">Our Products</h1>
+    <div className="container mx-auto px-4 py-10">
+      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Our Products</h1>
 
-      {/* Category Filter */}
-      <div className="mb-6 flex justify-center gap-4 flex-wrap">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              selectedCategory === cat
-                ? 'bg-orange-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-orange-400 hover:text-white'
-            }`}
-          >
-            {cat.charAt(0).toUpperCase() + cat.slice(1)}
-          </button>
-        ))}
-      </div>
+      {/* Filters */}
+      <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 flex-wrap">
+        {/* Category buttons */}
+        <div className="flex flex-wrap gap-2">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-5 py-2 rounded-lg font-semibold transition-all duration-200 border ${
+                selectedCategory === cat
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-400 hover:text-white'
+              }`}
+            >
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </button>
+          ))}
+        </div>
 
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={handleAddToCart}
+        {/* Search input */}
+        <div className="relative w-full md:w-64">
+          <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
           />
-        ))}
+        </div>
+
+        {/* Stock toggle */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={inStockOnly}
+            onChange={(e) => setInStockOnly(e.target.checked)}
+            className="accent-orange-500 w-4 h-4"
+          />
+          <span className="text-gray-700 font-medium">In Stock Only</span>
+        </label>
       </div>
+
+      {/* Product grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : filteredProducts.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={handleAddToCart}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500 mt-10 text-lg">No products found.</p>
+      )}
     </div>
   );
 }
