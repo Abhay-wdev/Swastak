@@ -114,11 +114,11 @@ export default function ProductDetailPage() {
            {/* Image Gallery */}
 <div className="w-full  lg:w-1/2">
   {/* Main Image */}
-  <div className="bg-gray-100 border rounded-lg overflow-hidden mb-4 flex items-center justify-center" >
+  <div className="bg-gray-100 border  rounded-lg overflow-hidden mb-4 flex items-center justify-center" >
     <img
       src={images[selectedImageIndex] || images[0]}
       alt={product.name}
-      className="max-w-full max-h-full object-contain"
+      className="max-w-full max-h-full h-100 object-contain"
     />
   </div>
 
@@ -181,11 +181,11 @@ export default function ProductDetailPage() {
               {highlights.length > 0 && highlights[0] !== '' && (
                <div className="mb-6">
   <h3 className="font-semibold text-gray-900 mb-3">Key Highlights</h3>
-  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 border p-2 rounded">
+  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2   p-2 rounded">
     {highlights.map((point, i) => (
       <li
         key={i}
-        className="flex items-start gap-2 border p-2 rounded bg-gray-50"
+        className="flex items-start gap-2  p-2 rounded bg-gray-50"
       >
         <span className="text-green-600 mt-1">✓</span>
         <span className="text-gray-700">{point.trim()}</span>

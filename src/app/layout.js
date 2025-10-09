@@ -3,6 +3,8 @@ import './globals.css';
 import Navbar from './components/Navbar';
 import Header from './components/Header';
 import { Toaster } from 'react-hot-toast'; // ✅ Import Toaster
+import Footer from './components/Footer';
+import FloatingContact from './components/FloatingContact';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,7 +23,9 @@ export default function RootLayout({ children }) {
 
         {/* Main content */}
         <main className="min-h-screen">{children}</main>
+<Footer />
 
+<FloatingContact/>
         {/* ✅ Toaster for toast notifications */}
         <Toaster
           position="top-right"

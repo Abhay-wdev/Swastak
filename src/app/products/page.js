@@ -4,7 +4,8 @@ import ProductCard from '../components/ProductCard';
 import { products as defaultProducts } from '@/lib/productsData';
 import { cartStorage } from '@/lib/localStorage';
 import toast from 'react-hot-toast';
-import { Search } from 'lucide-react'; // optional icon for search input
+import { Search } from 'lucide-react';
+import WhyChooseSuswastik from '../components/WhyChooseSuswastik';
 
 // Skeleton loader
 const SkeletonCard = () => (
@@ -33,25 +34,34 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [selectedWeight, setSelectedWeight] = useState('all'); // New weight filter
 
-  // Fetch products or load from localStorage
+  // Weight options
+  const weightOptions = [
+    'all',
+    '50g-100g',
+    '100g-200g',
+    '200g-300g',
+    '300g-400g',
+    '500g-500g',
+    '1kg',
+    '2kg',
+    '5kg',
+  ];
+
+  // Load products
   const fetchProducts = async () => {
     setLoading(true);
-    const storedProducts = localStorage.getItem('products');
 
+    let storedProducts = localStorage.getItem('products');
     if (storedProducts) {
-      const parsedProducts = JSON.parse(storedProducts);
-      setProducts(parsedProducts);
-      setFilteredProducts(parsedProducts.filter(p => p.isActive));
-      setLoading(false);
-      return;
+      storedProducts = JSON.parse(storedProducts);
+    } else {
+      storedProducts = defaultProducts;
+      localStorage.setItem('products', JSON.stringify(defaultProducts));
     }
 
-    // Simulate fetching
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setProducts(defaultProducts);
-    setFilteredProducts(defaultProducts.filter(p => p.isActive));
-    localStorage.setItem('products', JSON.stringify(defaultProducts));
+    setProducts(storedProducts);
     setLoading(false);
   };
 
@@ -62,30 +72,57 @@ export default function ProductsPage() {
 
   // Apply filters
   useEffect(() => {
-    let tempProducts = products.filter(p => p.isActive); // always active
+    if (!products || products.length === 0) return;
 
+    let tempProducts = products.filter((p) => p.isActive);
+
+    // Category filter
     if (selectedCategory !== 'all') {
       tempProducts = tempProducts.filter(
-        (p) => p.category.toLowerCase() === selectedCategory.toLowerCase()
+        (p) => (p.category || '').trim().toLowerCase() === selectedCategory.toLowerCase()
       );
     }
 
+    // Search filter
     if (searchKeyword.trim()) {
       const keyword = searchKeyword.toLowerCase();
       tempProducts = tempProducts.filter(
         (p) =>
-          p.name.toLowerCase().includes(keyword) ||
-          p.shortdisc.toLowerCase().includes(keyword) ||
-          p.description.toLowerCase().includes(keyword)
+          (p.name || '').toLowerCase().includes(keyword) ||
+          (p.shortdisc || '').toLowerCase().includes(keyword) ||
+          (p.description || '').toLowerCase().includes(keyword)
       );
     }
 
+    // In-stock filter
     if (inStockOnly) {
-      tempProducts = tempProducts.filter((p) => p.stockQuantity > 0);
+      tempProducts = tempProducts.filter((p) => Number(p.stockQuantity) > 0);
+    }
+
+    // Weight filter
+    if (selectedWeight !== 'all') {
+      tempProducts = tempProducts.filter((p) => {
+        if (!p.weight) return false;
+
+        const weightStr = p.weight.toLowerCase().replace(/\s+/g, ''); // e.g., "250g"
+        const [min, max] =
+          selectedWeight.includes('-')
+            ? selectedWeight.replace('g', '').split('-').map(Number)
+            : [parseFloat(selectedWeight), parseFloat(selectedWeight)];
+
+        if (weightStr.includes('kg')) {
+          const kgVal = parseFloat(weightStr.replace('kg', '')) * 1000;
+          return kgVal >= min && (max ? kgVal <= max : true);
+        } else if (weightStr.includes('g')) {
+          const gVal = parseFloat(weightStr.replace('g', ''));
+          return gVal >= min && (max ? gVal <= max : true);
+        }
+        return false;
+      });
     }
 
     setFilteredProducts(tempProducts);
-  }, [selectedCategory, searchKeyword, inStockOnly, products]);
+  }, [selectedCategory, searchKeyword, inStockOnly, selectedWeight, products]);
 
   const handleAddToCart = (product) => {
     const updatedCart = cartStorage.addToCart(product, 1);
@@ -94,9 +131,15 @@ export default function ProductsPage() {
   };
 
   // Extract unique categories
-  const categories = ['all', ...new Set(products.map((p) => p.category))];
+  const categories = [
+    'all',
+    ...Array.from(
+      new Set(products.map((p) => (p.category || '').trim()).filter(Boolean))
+    ),
+  ];
 
   return (
+    <div>
     <div className="container mx-auto px-4 py-10">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Our Products</h1>
 
@@ -141,6 +184,23 @@ export default function ProductsPage() {
           />
           <span className="text-gray-700 font-medium">In Stock Only</span>
         </label>
+
+        {/* Weight filter */}
+        <div className="flex flex-wrap gap-2">
+          {weightOptions.map((weight) => (
+            <button
+              key={weight}
+              onClick={() => setSelectedWeight(weight)}
+              className={`px-3 py-1 rounded-lg font-medium transition-all duration-200 border ${
+                selectedWeight === weight
+                  ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-400 hover:text-white'
+              }`}
+            >
+              {weight}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Product grid */}
@@ -153,16 +213,14 @@ export default function ProductsPage() {
       ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={handleAddToCart}
-            />
+            <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
           ))}
         </div>
       ) : (
         <p className="text-center text-gray-500 mt-10 text-lg">No products found.</p>
       )}
+    </div>
+    <WhyChooseSuswastik/>
     </div>
   );
 }

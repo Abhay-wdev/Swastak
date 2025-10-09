@@ -69,7 +69,7 @@ const ReviewSection = () => {
         }
       `}</style>
 
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 ">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
             <span className="text-sm text-green-600 font-semibold block mb-1">

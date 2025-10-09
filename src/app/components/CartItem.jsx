@@ -7,7 +7,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
     <div className="bg-white rounded-lg shadow-md p-4 mb-4 hover:shadow-lg transition-shadow">
       <div className="flex gap-4">
         {/* Product Image */}
-        <div className="relative flex-shrink-0">
+        <div className="relative  flex-shrink-0">
           <img
             src={item.imageUrls.split(',')[0]}
             alt={item.name}

@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 const frontendIcons = [
-  { id: 1, icon: "/images/Category-three.webp", label: "Whole Spices", href: "/home" },
-  { id: 2, icon: "/images/Category-three.webp", label: "Masala Mix", href: "/home" },
-  { id: 3, icon: "/images/Category-three.webp", label: "Herbs", href: "/home" },
-  { id: 4, icon: "/images/Category-three.webp", label: "Dry Fruits", href: "/home" },
+  { id: 1, icon: "/images/Category-three.webp", label: "Whole Spices", href: "/products" },
+  { id: 2, icon: "/images/Category-three.webp", label: "Masala Mix", href: "/products" },
+  { id: 3, icon: "/images/Category-three.webp", label: "Herbs", href: "/products" },
+  { id: 4, icon: "/images/Category-three.webp", label: "Dry Fruits", href: "/products" },
 ];
 
 // Slide-in animation
@@ -25,7 +25,7 @@ const motionProps = (index) => ({
 
 // Floating animation
 const floatingProps = (index) => ({
-  animate: { y: [0, -8, 0] },
+  animate: { y: [0, -20, 0] },
   transition: {
     duration: 3.5,
     repeat: Infinity,
@@ -36,7 +36,7 @@ const floatingProps = (index) => ({
 
 export default function ProductCards() {
   return (
-    <div className="w-full bg-gradient-to-b from-green-50 to-white py-14 space-y-12">
+    <div className="w-full bg-[#FFF3F3]   py-14 space-y-12">
       {/* Heading */}
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-green-700 relative inline-block">
@@ -49,26 +49,26 @@ export default function ProductCards() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 sm:gap-8 justify-items-center px-4 sm:px-8">
+      <div className="grid grid-cols-2   sm:grid-cols-3 md:grid-cols-4 gap-6 sm:gap-8 justify-items-center px-4 sm:px-8">
         {frontendIcons.map(({ id, icon, label, href }, index) => (
           <motion.div
             key={id}
             {...motionProps(index)}
-            className="flex flex-col items-center text-center group"
+            className="flex flex-col   items-center text-center group"
           >
             <Link href={href}>
               <motion.div
                 {...floatingProps(index)}
-                className="relative flex items-center justify-center w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-2xl bg-white shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-green-100"
+                className="relative flex items-center justify-center w-40 h-30 sm:w-50 sm:h-35 md:w-80 md:h-60 rounded-2xl      hover:scale-105 transition-all duration-300  "
               >
                 <Image
                   src={icon}
                   alt={label}
                   width={140}
                   height={140}
-                  className="rounded-xl object-cover w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32"
+                  className="rounded-xl object-cover w-40 h-40 sm:w-40 sm:h-40 md:w-70 md:h-60"
                 />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-transparent to-green-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                
               </motion.div>
             </Link>
             <span className="text-sm sm:text-base md:text-lg mt-3 font-semibold text-gray-700 group-hover:text-green-600 transition-colors">

@@ -68,8 +68,9 @@ const Header = () => {
   const menuItems = [
     { name: 'Home', href: '/' },
     { name: 'Products', href: '/products' },
-    { name: 'Contact', href: '/contact' },
-    { name: 'Become a Partner', href: '/partner' }
+   
+    { name: 'About Us', href: '/about-us' },
+     { name: 'Contact', href: '/contact' }
   ];
 
   return (

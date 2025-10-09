@@ -5,15 +5,31 @@ import ProductCards from './components/ProductCards';
 import HeroSection from './components/HeroSection';
 import ReviewSection from './components/ReviewSection';
 import { fetchAndStoreProducts, getProductsFromLocalStorage } from '@/lib/productsData';
+import { fetchAndStoreSlides, getSlidesFromLocalStorage } from '@/lib/slidesData'; // new slides functions
+import ScrollingCrousal from './components/ScrollingCrousal';
+import UspRibbonSection from './components/UspRibbonSection';
+import FaqSection from './components/FaqSection';
+import WhyChooseSuswastik from './components/WhyChooseSuswastik';
 
 export default function Home() {
-  const slides = [
-    { id: 1, image: '/images/slide1.jpg' },
-    { id: 2, image: '/images/slide2.jpg' },
-    { id: 3, image: '/images/slide3.jpg' },
-  ];
-
+  const [slides, setSlides] = useState([]);
   const [products, setProducts] = useState([]);
+
+  // Fetch slides once
+  useEffect(() => {
+    // Try to get slides from localStorage first
+    const storedSlides = getSlidesFromLocalStorage();
+    if (storedSlides.length > 0) {
+      setSlides(storedSlides);
+    } else {
+      // Fetch from backend if not in localStorage
+      fetchAndStoreSlides().then(() => {
+        const data = getSlidesFromLocalStorage();
+        setSlides(data);
+        console.log('Slides loaded:', data); // ✅ check console
+      });
+    }
+  }, []);
 
   // Fetch products once
   useEffect(() => {
@@ -27,11 +43,12 @@ export default function Home() {
   return (
     <>
       <HeroSection slides={slides} />
-
-      {/* Only pass products to ProductCards, don't render objects directly */}
+      <UspRibbonSection />
       <ProductCards products={products} />
-
+      <ScrollingCrousal />
       <ReviewSection />
+      <WhyChooseSuswastik />
+      <FaqSection />
     </>
   );
 }

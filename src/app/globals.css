@@ -1,3 +1,15 @@
 @import "tailwindcss";
+@keyframes scrollText {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
- 
+.animate-scrollText {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollText 20s linear infinite;
+}
