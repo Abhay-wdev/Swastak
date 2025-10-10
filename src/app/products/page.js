@@ -174,16 +174,7 @@ export default function ProductsPage() {
           />
         </div>
 
-        {/* Stock toggle */}
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={inStockOnly}
-            onChange={(e) => setInStockOnly(e.target.checked)}
-            className="accent-orange-500 w-4 h-4"
-          />
-          <span className="text-gray-700 font-medium">In Stock Only</span>
-        </label>
+   
 
         {/* Weight filter */}
         <div className="flex flex-wrap gap-2">

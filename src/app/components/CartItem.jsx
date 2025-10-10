@@ -4,7 +4,7 @@ export default function CartItem({ item, onUpdateQuantity, onRemove }) {
   const savings = (item.realprise - item.disprice) * item.quantity;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 mb-4 hover:shadow-lg transition-shadow w-full">
+    <div className="bg-white rounded-lg shadow-md cursor-pointer p-4 mb-4 hover:shadow-lg transition-shadow w-full">
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Product Image */}
         <div className="relative flex-shrink-0">

@@ -7,6 +7,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import "swiper/css/effect-cards";
+import Link from "next/link";
 
 const ReviewSection = () => {
   const reviews = [
@@ -277,9 +278,11 @@ const ReviewSection = () => {
           {/* Call to Action */}
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-6">Join thousands of satisfied customers today!</p>
+            <Link href="/products">
             <button className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
               Get Started Now →
             </button>
+            </Link>
           </div>
         </div>
       </section>

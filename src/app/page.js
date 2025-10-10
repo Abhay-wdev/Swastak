@@ -10,6 +10,7 @@ import ScrollingCrousal from './components/ScrollingCrousal';
 import UspRibbonSection from './components/UspRibbonSection';
 import FaqSection from './components/FaqSection';
 import WhyChooseSuswastik from './components/WhyChooseSuswastik';
+import Iframe from './components/Iframe';
 
 export default function Home() {
   const [slides, setSlides] = useState([]);
@@ -50,6 +51,7 @@ export default function Home() {
       <ReviewSection />
       <WhyChooseSuswastik />
       <FaqSection />
+      <Iframe/>
     </>
   );
 }

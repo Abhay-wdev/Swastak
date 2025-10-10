@@ -1,5 +1,6 @@
 import React from "react";
 import { Truck, Shield, Award, Star } from "lucide-react";
+import Link from "next/link";
 
 const WhyChooseSuswastik = () => {
   const features = [
@@ -240,10 +241,13 @@ const WhyChooseSuswastik = () => {
 
           {/* Call to Action */}
           <div className="text-center mt-16">
+            <Link href="/products">
             <button className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg">
               Shop Now & Experience Quality →
             </button>
+            </Link>
           </div>
+          
         </div>
       </section>
     </>
