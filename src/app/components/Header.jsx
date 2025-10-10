@@ -86,7 +86,7 @@ const Header = () => {
               height={40}
               className="rounded-md object-cover"
             />
-            <span className="ml-2 font-bold text-gray-800">Spic</span>
+            <span className="ml-2  font-bold text-gray-800">Swastiks</span>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -140,7 +140,7 @@ const Header = () => {
               height={100}
               className="rounded-md object-cover"
             />
-            <span className="ml-2 font-bold text-gray-800">Swastiks</span>
+            <span className="ml-2 text-2xl font-bold text-blue-800">Swastiks</span>
           </div>
 
           <div className="flex items-center space-x-6">

@@ -19,6 +19,7 @@ export default function Home() {
   useEffect(() => {
     // Try to get slides from localStorage first
     const storedSlides = getSlidesFromLocalStorage();
+    console.log('Stored slides:', storedSlides); // ✅ check console
     if (storedSlides.length > 0) {
       setSlides(storedSlides);
     } else {
