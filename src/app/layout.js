@@ -5,6 +5,7 @@ import Header from './components/Header';
 import { Toaster } from 'react-hot-toast'; // ✅ Import Toaster
 import Footer from './components/Footer';
 import FloatingContact from './components/FloatingContact';
+import FloatingCart from './components/FloatingCart';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
 <Footer />
 
 <FloatingContact/>
+<FloatingCart/>
         {/* ✅ Toaster for toast notifications */}
         <Toaster
           position="top-right"
