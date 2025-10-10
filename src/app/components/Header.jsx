@@ -83,7 +83,7 @@ const Header = () => {
               src="/images/logo.png"
               alt="SpiceMarket Logo"
               width={80}
-              height={80}
+              height={40}
               className="rounded-md object-cover"
             />
             <span className="ml-2  font-bold text-gray-800">Swastiks</span>
@@ -131,13 +131,13 @@ const Header = () => {
         </div>
 
         {/* Desktop Header */}
-        <div className="hidden md:flex items-center justify-between">
+        <div className="hidden md:flex items-center py-3 justify-between">
           <div className="flex items-center">
             <Image
               src="/images/logo.png"
               alt="SpiceMarket Logo"
               width={100}
-              height={100}
+              height={48}
               className="rounded-md object-cover"
             />
             <span className="ml-2 text-2xl font-bold text-blue-800">Swastiks</span>
