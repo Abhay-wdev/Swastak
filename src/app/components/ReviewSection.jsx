@@ -167,7 +167,7 @@ const ReviewSection = () => {
                 ⭐ Testimonials ⭐
               </span>
             </div>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 mb-4">
+            <h2 className="text-4xl sm:text-5xl pb-1 lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 mb-4">
               What Our Happy Customers Say!
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">

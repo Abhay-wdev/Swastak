@@ -187,6 +187,7 @@ const ProductDetail = ({ products = [] }) => {
 
               return (
                 <SwiperSlide key={product.id}>
+                   <Link href={`/products/${product.name}`}>
                   <div className="product-card max-w-md mx-auto">
                     {/* Discount Badge */}
                     {discount > 0 && (
@@ -196,7 +197,7 @@ const ProductDetail = ({ products = [] }) => {
                     )}
 
                     {/* Product Image */}
-                    <Link href={`/products/${product.name}`}>
+                   
                       <div className="image-wrapper relative w-full h-64 sm:h-72 md:h-80">
                         <img
                           src={product.imageUrls?.[0] || fallbackImage}
@@ -204,7 +205,7 @@ const ProductDetail = ({ products = [] }) => {
                           className="w-full h-full object-contain transition-transform duration-500 hover:scale-110 p-4"
                         />
                       </div>
-                    </Link>
+                   
 
                     {/* Product Info */}
                     <div className="p-6 space-y-4">
@@ -227,24 +228,28 @@ const ProductDetail = ({ products = [] }) => {
                       <div className="flex flex-wrap justify-between items-center gap-3 pt-2">
                         <div className="price-tag">
                           <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-extrabold text-amber-700">
+                            <span className="text-3xl font-extrabold text-green-700">
                               ₹{product.disprice}
                             </span>
-                            {product.realprice > product.disprice && (
+                            {product.realprice < product.disprice && (
                               <span className="text-gray-500 line-through text-base font-medium">
                                 ₹{product.realprice} 
                               </span>
+                               
                             )}
+                            <span className="text-sm line-through font-medium text-gray-600">
+                            {product.realprise} 
+                            </span>
+                             
                             
-                              <span className="text-gray-500 line-through text-base font-medium">
-                                ₹{product.disprice} 
-                              </span>
+                             
                             
                           </div>
                         </div>
                         <div className="bg-white border-2 border-amber-200 px-3 py-1.5 rounded-lg">
                           <p className="text-xs font-semibold text-gray-700">
                             📦 {product.weight}
+                           
                           </p>
                         </div>
                       </div>
@@ -266,6 +271,7 @@ const ProductDetail = ({ products = [] }) => {
                       
                     </div>
                   </div>
+                  </Link>
                 </SwiperSlide>
               );
             })}

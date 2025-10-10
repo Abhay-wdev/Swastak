@@ -75,15 +75,15 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-3 md:py-0">
+      <div className="container mx-auto px-4 py-3  md:py-0">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between">
           <div className="flex items-center">
             <Image
               src="/images/logo.png"
               alt="SpiceMarket Logo"
-              width={40}
-              height={40}
+              width={80}
+              height={80}
               className="rounded-md object-cover"
             />
             <span className="ml-2  font-bold text-gray-800">Swastiks</span>
@@ -91,7 +91,7 @@ const Header = () => {
 
           <div className="flex items-center space-x-4">
             <Link onClick={()=>setTimeout(() => setIsMenuOpen(false), 10)} href={'/cart'} className="relative">
-              <FiShoppingCart className="text-gray-700 text-xl" />
+              <FiShoppingCart className="text-gray-700 text-2xl" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {cartCount}
@@ -100,7 +100,7 @@ const Header = () => {
             </Link>
 
             <button onClick={toggleMenu} className="text-gray-700">
-              {isMenuOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
+              {isMenuOpen ? <FiX className="text-2xl" /> : <FiMenu className="text-2xl" />}
             </button>
           </div>
         </div>
