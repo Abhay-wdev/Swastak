@@ -28,7 +28,7 @@ export default function CheckoutButton({ cart, total, onSuccess }) {
     setLoading(true);
 
     const url =
-      'https://script.google.com/macros/s/AKfycbz9bspO3hxfoPeXnGEr3It_qk291qsPriIBp9x-v1P4eodfdcTC7XBvN4EUdKdyC4lgeg/exec';
+      'https://script.google.com/macros/s/AKfycbwWGGJ9eSCdiUZ3imTaJYKfaRMdr1MhkGHvJ_fjXMbf441pdQRF1ZdmfacE670Pnp2oTQ/exec';
 
     const formData = new URLSearchParams({
       ...customerInfo,

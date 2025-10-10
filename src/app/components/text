@@ -1,0 +1,188 @@
+//this the order recived from website ""
+
+{
+    /*
+function doPost(e) {
+  try {
+    const sheet = SpreadsheetApp.openByUrl(
+      "https://docs.google.com/spreadsheets/d/10VS96Hc9xiLmsAM2L6-PrDWZOdxYSrNjxXnPQi9iDRU/edit"
+    ).getSheetByName("Sheet1");
+
+    const data = e.parameter;
+    const orderTime = new Date();
+    const id = generateUniqueId(sheet);
+
+    // Basic validation
+    if (!data.name || !data.email || !data.phone || !data.address || !data.city || !data.state || !data.pincode) {
+      throw new Error("Missing required fields");
+    }
+
+    // Parse cart JSON safely
+    let cartItems = [];
+    try {
+      cartItems = JSON.parse(data.cart || "[]");
+    } catch (err) {
+      Logger.log("Error parsing cart JSON: " + err);
+      cartItems = [];
+    }
+
+    // Save order to sheet
+    sheet.appendRow([
+      id,
+      data.name,
+      data.email,
+      data.phone,
+      data.address,
+      data.city,
+      data.state,
+      data.pincode,
+      data.cart || '',
+      data.total || '',
+      data.paymentMethod || '',
+      data.note || '',
+      orderTime
+    ]);
+
+    // ---------- 🛍️ HTML Cart Table ----------
+    const cartTable = cartItems.length
+      ? `
+        <table border="1" cellspacing="0" cellpadding="8" style="border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;">
+          <thead style="background-color:#f4f4f4;">
+            <tr>
+              <th>Name</th>
+              <th>Discount Price</th>
+              <th>Category</th>
+              <th>Short Description</th>
+              <th>Real Price</th>
+              <th>Weight</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cartItems.map(item => `
+              <tr>
+                <td>${item.name || ''}</td>
+                <td>${item.disprice || ''}</td>
+                <td>${item.category || ''}</td>
+                <td>${item.shortdisc || ''}</td>
+                <td>${item.realprise || ''}</td>
+                <td>${item.weight || ''}</td>
+                <td>${item.quantity || ''}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `
+      : "<p>No items in cart.</p>";
+
+    // ---------- 📧 ADMIN EMAIL ----------
+    const adminEmail = "abhaychorsiya55@gmail.com"; // 🔹 Replace with your admin email
+    const adminSubject = `🛒 New Order Received - ${data.name}`;
+    const adminBody = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>🆕 New Order Received</h2>
+        <p><strong>Order ID:</strong> ${id}</p>
+        <p><strong>Order Time:</strong> ${orderTime}</p>
+        <hr>
+        <h3>👤 Customer Details</h3>
+        <p>
+          <strong>Name:</strong> ${data.name}<br>
+          <strong>Email:</strong> ${data.email}<br>
+          <strong>Phone:</strong> ${data.phone}<br>
+          <strong>Address:</strong> ${data.address}, ${data.city}, ${data.state} - ${data.pincode}
+        </p>
+        <hr>
+        <h3>🛍️ Cart Details</h3>
+        ${cartTable}
+        <hr>
+        <p>
+          <strong>Total Amount:</strong> ${data.total || 'N/A'}<br>
+          <strong>Payment Method:</strong> ${data.paymentMethod || 'N/A'}<br>
+          <strong>Note:</strong> ${data.note || 'N/A'}
+        </p>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: adminEmail,
+      subject: adminSubject,
+      htmlBody: adminBody
+    });
+
+    // ---------- 💌 CUSTOMER RECEIPT EMAIL ----------
+    const customerSubject = `🧾 Order Confirmation - Order #${id}`;
+    const customerBody = `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color:#4CAF50;">Thank You for Your Order, ${data.name}!</h2>
+        <p>We’ve received your order and it’s being processed. Here’s your receipt:</p>
+        <hr>
+        <h3>🧾 Order Summary</h3>
+        <p>
+          <strong>Order ID:</strong> ${id}<br>
+          <strong>Date:</strong> ${orderTime}<br>
+          <strong>Payment Method:</strong> ${data.paymentMethod || 'N/A'}
+        </p>
+        ${cartTable}
+        <p style="margin-top: 10px;">
+          <strong>Total Amount:</strong> ₹${data.total || 'N/A'}
+        </p>
+        <hr>
+        <h3>📦 Shipping Information</h3>
+        <p>
+          ${data.name}<br>
+          ${data.address}<br>
+          ${data.city}, ${data.state} - ${data.pincode}<br>
+          Phone: ${data.phone}
+        </p>
+        <hr>
+        <p>We’ll send another email when your order is shipped.</p>
+        <p style="color:#777;">If you have any questions, reply to this email or contact us.</p>
+        <h4 style="color:#4CAF50;">— The Spice Store Team 🌿</h4>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: data.email, // customer's email
+      subject: customerSubject,
+      htmlBody: customerBody
+    });
+
+    // ---------- ✅ Response ----------
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: true,
+        message: "Order placed successfully! Emails sent.",
+        orderId: id,
+        orderTime: orderTime
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    Logger.log('Error: ' + error.toString());
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        success: false,
+        message: "Error placing order: " + error.message
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// Generate unique order ID
+function generateUniqueId(sheet) {
+  const lastRow = sheet.getLastRow();
+  const existingIds = lastRow > 1
+    ? sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat()
+    : [];
+  let newId;
+  do {
+    newId = Utilities.getUuid();
+  } while (existingIds.includes(newId));
+  return newId;
+}
+*/
+}
+
+
+
+
