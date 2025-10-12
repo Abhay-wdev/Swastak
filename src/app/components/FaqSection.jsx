@@ -32,7 +32,7 @@ const faqItems = [
   },
   {
     question: "Do you take bulk or wholesale orders?",
-    answer: "Yes, we provide bulk, wholesale, and export options. For business inquiries, please contact us through our website or email us at support@swastakspices.com."
+    answer: "Yes, we provide bulk, wholesale, and export options. For business inquiries, please contact us through our website or email us at Suswastikspices@gmail.com."
   }
 ];
 

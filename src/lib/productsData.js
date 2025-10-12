@@ -4,7 +4,7 @@ export const products = [];
 export const fetchAndStoreProducts = async () => {
   try {
     const res = await fetch(
-      'https://script.google.com/macros/s/AKfycbzqLHSPfIRjN2_0hkqgxr-LbY2BTCCZtcxbK7vBUkjSDHYszDxHHfuBSJ2YbBPrtgyk2g/exec'
+      'https://script.google.com/macros/s/AKfycbzLZ57AjTGVIrv-U4t38sfgYWm6Fkp2cyBoZKw2JFv0oif6C8lwNSMVwmsLiJ2dNDmP/exec'
     );
     const json = await res.json();
 

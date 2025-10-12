@@ -50,8 +50,9 @@ export default function Home() {
       <ScrollingCrousal />
       <ReviewSection />
       <WhyChooseSuswastik />
+ 
       <FaqSection />
-      <Iframe/>
+      
     </>
   );
 }

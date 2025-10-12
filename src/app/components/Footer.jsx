@@ -31,9 +31,9 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { name: "Facebook", icon: Facebook, href: "#" },
-    { name: "Instagram", icon: Instagram, href: "#" },
-    { name: "LinkedIn", icon: Linkedin, href: "#" },
+   
+    { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/_suswastik/?igsh=Mmh3czBpbWE5dDU1&utm_source=qr#" },
+     
   ];
 
   return (
@@ -96,21 +96,27 @@ const Footer = () => {
                 <MapPin className="w-5 h-5 mr-3 mt-1 flex-shrink-0 text-gray-600" />
                 <p
                   className="text-sm text-gray-700 hover:text-green-700 cursor-pointer transition-colors duration-300"
-                  onClick={() => window.open("https://www.google.com/maps?q=C-109,+Nemi+Nagar,+Vaishali+Nagar,+Jaipur,+Rajasthan+302021", "_blank")}
+                  onClick={() => window.open("https://maps.google.com/?q=26.821970,75.755638", "_blank")}
                 >
-                  C-109, Nemi Nagar, Vaishali Nagar, Jaipur, Rajasthan 302021
+                  P.No.8, S.No.5, Ground Floor, Naina Vihar, Rampura Road, Sanganer, Jaipur-302029
                 </p>
               </div>
               <div className="flex items-center">
                 <Phone className="w-5 h-5 mr-3 flex-shrink-0 text-gray-600" />
-                <a href="tel:+916378362945" className="text-sm text-gray-700 hover:text-green-700 transition-colors duration-300">
-                  +91 6378362945
+                <a href="tel:+919414545230" className="text-sm text-gray-700 hover:text-green-700 transition-colors duration-300">
+                  +91  9414545230
+                  
+                </a>
+                <br />
+                 <a href="tel:+919414446467" className="text-sm text-gray-700 hover:text-green-700 transition-colors duration-300">
+                  +91  9414446467
+                  
                 </a>
               </div>
               <div className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 flex-shrink-0 text-gray-600" />
-                <a href="mailto:admin@ecomvision.in" className="text-sm text-gray-700 hover:text-green-700 transition-colors duration-300">
-                  admin@ecomvision.in
+                <a href="mailto:Suswastikspices@gmail.com" className="text-sm text-gray-700 hover:text-green-700 transition-colors duration-300">
+                  Suswastikspices@gmail.com
                 </a>
               </div>
             </div>
@@ -120,8 +126,9 @@ const Footer = () => {
         {/* Map - full width below all sections */}
         <div className="w-full mt-12 h-[250px] md:h-[300px] lg:h-[350px] rounded-lg overflow-hidden shadow-lg">
           <iframe
+       
             title="Custom Location"
-            src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3557.3753805200045!2d75.75136958947722!3d26.897749455694516!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1719746260000!5m2!1sen!2sin"
+            src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3384.391397522732!2d75.75306307543633!3d26.82196997670136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMjbCsDQ5JzE5LjEiTiA3NcKwNDUnMjAuMyJF!5e1!3m2!1sen!2sin!4v1760097962969!5m2!1sen!2sin"
             width="100%"
             height="100%"
             style={{ border: 0 }}

@@ -1,0 +1,252 @@
+//////////// this is the code 
+
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('HerosectionPoster');
+  var values = sheet.getRange("A1:B10").getValues(); // multi-column range
+
+  // Convert each row into { images: [col1, col2, ...] }, skip completely empty rows
+  var data = values
+    .filter(row => row.some(cell => cell)) // keep rows that have at least one value
+    .map(row => ({ images: row.map(cell => cell || "") })); // fill empty cells with ""
+
+  // Return as JSON
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+
+/////////// 
+this is the herosection manegemnet code
+
+////////backend////////
+
+
+/* // ===============================
+// SERVER-SIDE SCRIPT
+// ===============================
+ 
+// Editable range (user can modify)
+const HERO_SECTION_RANGE = "A1:B10"; // Can be changed to A1:C10 etc.
+
+function getHeroSectionData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("HerosectionPoster");
+  const data = sheet.getRange(HERO_SECTION_RANGE).getValues();
+
+  // Return as array of objects with images array
+  return data
+    .filter(row => row.some(cell => cell !== "")) // filter empty rows
+    .map(row => ({
+      images: row.filter(cell => cell !== "") // keep non-empty cells as images
+    }));
+}
+
+// Add a new row of images
+function addPoster(poster) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("HerosectionPoster");
+  const lastRow = sheet.getLastRow() + 1;
+  sheet.getRange(lastRow, 1, 1, poster.images.length).setValues([poster.images]);
+  return "Poster added successfully!";
+}
+
+// Update an existing row
+function updatePoster(index, poster) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("HerosectionPoster");
+  const startRow = index + 1;
+  sheet.getRange(startRow, 1, 1, poster.images.length).setValues([poster.images]);
+  return "Poster updated successfully!";
+}
+
+// Delete a row
+function deletePoster(index) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("HerosectionPoster");
+  sheet.deleteRow(index + 1);
+  return "Poster deleted successfully!";
+}
+ */
+ 
+
+ /////////frontend/////////////
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hero Section Poster Manager</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base target="_top" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col items-center py-10">
+  <div id="root" class="w-full max-w-4xl"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function App() {
+      const [posters, setPosters] = useState([]);
+      const [newPoster, setNewPoster] = useState({ images: ["", ""] });
+      const [loading, setLoading] = useState(false);
+
+      // Fetch posters from backend
+      const loadPosters = () => {
+        setLoading(true);
+        google.script.run.withSuccessHandler((data) => {
+          setPosters(data);
+          setLoading(false);
+          if (data.length > 0) {
+            const colCount = data[0].images.length;
+            setNewPoster({ images: Array(colCount).fill("") });
+          }
+        }).getHeroSectionData();
+      };
+
+      useEffect(() => loadPosters(), []);
+
+      // Add new poster
+      const addPoster = () => {
+        const trimmedImages = newPoster.images.map(img => img.trim());
+        if (trimmedImages.every(img => img === "")) return alert("Please enter at least one image URL.");
+        google.script.run.withSuccessHandler(msg => {
+          alert(msg);
+          setNewPoster({ images: Array(trimmedImages.length).fill("") });
+          loadPosters();
+        }).addPoster({ images: trimmedImages });
+      };
+
+      // Update poster
+      const updatePoster = (index, poster) => {
+        google.script.run.withSuccessHandler(msg => {
+          alert(msg);
+          loadPosters();
+        }).updatePoster(index, poster);
+      };
+
+      // Delete poster
+      const deletePoster = (index) => {
+        if (!confirm("Are you sure you want to delete this?")) return;
+        google.script.run.withSuccessHandler(msg => {
+          alert(msg);
+          loadPosters();
+        }).deletePoster(index);
+      };
+
+      // Live input change handler
+      const handleImageChange = (rowIndex, colIndex, value) => {
+        const updated = posters.map((poster, i) => {
+          if (i === rowIndex) {
+            // create a new array for this row to trigger re-render
+            const newImages = [...poster.images];
+            newImages[colIndex] = value;
+            return { ...poster, images: newImages };
+          }
+          return poster;
+        });
+        setPosters(updated);
+      };
+
+      return (
+        <div className="bg-white shadow-lg rounded-2xl p-8 w-full">
+          <h2 className="text-2xl font-bold text-center mb-6">
+            🎬 Hero Section Poster Manager
+          </h2>
+
+          {/* Add New Poster */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+            {newPoster.images.map((img, idx) => (
+              <input
+                key={idx}
+                type="text"
+                value={img}
+                onChange={(e) => {
+                  const updated = [...newPoster.images];
+                  updated[idx] = e.target.value;
+                  setNewPoster({ images: updated });
+                }}
+                placeholder={`Image URL ${idx + 1}`}
+                className="p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+              />
+            ))}
+            <button
+              onClick={addPoster}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg transition"
+            >
+              Add Poster
+            </button>
+          </div>
+
+          {/* Posters List */}
+          {loading ? (
+            <p className="text-center text-gray-500">Loading posters...</p>
+          ) : posters.length === 0 ? (
+            <p className="text-center text-gray-500">No posters found.</p>
+          ) : (
+            <div className="space-y-4">
+              {posters.map((poster, i) => (
+                <div key={i} className="border rounded-lg shadow-sm p-4 flex flex-col md:flex-row items-center gap-4">
+
+                  {/* Live Image Preview */}
+                  <div className="flex gap-2 flex-wrap">
+                    {poster.images.map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img}
+                        alt={`Poster ${i} Image ${idx}`}
+                        className="w-32 h-32 object-cover rounded-lg border"
+                        onError={(e) => (e.target.style.display = 'none')}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Editable Inputs with live preview */}
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 flex-grow">
+                    {poster.images.map((img, idx) => (
+                      <input
+                        key={idx}
+                        type="text"
+                        value={img}
+                        onChange={(e) => handleImageChange(i, idx, e.target.value)}
+                        placeholder={`Image URL ${idx + 1}`}
+                        className="p-2 border rounded-lg flex-grow"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => updatePoster(i, posters[i])}
+                      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md"
+                    >
+                      Update
+                    </button>
+                    <button
+                      onClick={() => deletePoster(i)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md"
+                    >
+                      Delete
+                    </button>
+                  </div>
+
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
+

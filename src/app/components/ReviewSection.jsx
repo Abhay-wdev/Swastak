@@ -2,48 +2,138 @@
 
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay, EffectCards } from "swiper/modules";
+import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
-import "swiper/css/effect-cards";
 import Link from "next/link";
 
 const ReviewSection = () => {
-  const reviews = [
-    {
-      id: 1,
-      text: "Pagedone has made it possible for me to stay on top of my portfolio and make informed decisions quickly and easily.",
-      name: "Jane D",
-      title: "CEO",
-      rating: 4.9,
-      img: "https://pagedone.io/asset/uploads/1696229969.png",
-    },
-    {
-      id: 2,
-      text: "Thanks to Pagedone, I feel more informed and confident about my investment decisions than ever before.",
-      name: "Harsh P.",
-      title: "Product Designer",
-      rating: 4.9,
-      img: "https://pagedone.io/asset/uploads/1696229994.png",
-    },
-    {
-      id: 3,
-      text: "The customer service team at Pagedone went above and beyond to help me resolve a billing issue.",
-      name: "Alex K.",
-      title: "Design Lead",
-      rating: 4.9,
-      img: "https://pagedone.io/asset/uploads/1696230027.png",
-    },
-    {
-      id: 4,
-      text: "Pagedone has simplified my daily tracking and reporting process — I can't imagine my workflow without it.",
-      name: "Sam R.",
-      title: "Marketing Head",
-      rating: 5.0,
-      img: "https://pagedone.io/asset/uploads/1696229994.png",
-    },
-  ];
+const reviews = [
+  {
+    id: 1,
+    text: "I have been using Swastik Spices for a few months now, and I must say, the flavors are really fresh and authentic. My family loves the aroma and taste in every dish.",
+    name: "Ravi K.",
+    title: "Chef",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/men/11.jpg",
+  },
+  {
+    id: 2,
+    text: "Swastik Spices are simply amazing! Every time I cook, the spices bring out the true taste of my dishes. They are fresh, aromatic, and make cooking so much more enjoyable.",
+    name: "Priya S.",
+    title: "Home Cook",
+    rating: 4.9,
+    img: "https://randomuser.me/api/portraits/women/12.jpg",
+  },
+  {
+    id: 3,
+    text: "I run a small restaurant, and Swastik Spices have made a big difference. The quality is consistent, and my customers keep asking what I use. Highly recommend to anyone who loves good flavors.",
+    name: "Amit T.",
+    title: "Restaurant Owner",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/men/13.jpg",
+  },
+  {
+    id: 4,
+    text: "I love cooking and always try different spices. Swastik Spices are fresh and natural, and they really enhance the taste of every dish. My friends and family always ask where I get them from.",
+    name: "Sunita R.",
+    title: "Food Blogger",
+    rating: 4.8,
+    img: "https://randomuser.me/api/portraits/women/14.jpg",
+  },
+  {
+    id: 5,
+    text: "The aroma of Swastik Spices is something else! I tried their masala for my daily cooking, and it tastes so much better than other brands. I feel like a professional chef now.",
+    name: "Vikram P.",
+    title: "Chef",
+    rating: 4.9,
+    img: "https://randomuser.me/api/portraits/men/15.jpg",
+  },
+  {
+    id: 6,
+    text: "I use Swastik Spices every day for cooking at home. They are fresh, flavorful, and really make a difference in taste. I have recommended them to all my friends and family.",
+    name: "Anjali M.",
+    title: "Home Cook",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/women/16.jpg",
+  },
+  {
+    id: 7,
+    text: "Being a restaurant owner, I need quality spices for my customers. Swastik Spices never disappoints. The aroma and flavor are excellent, and they last long without losing freshness. Really happy with the product.",
+    name: "Rohan S.",
+    title: "Restaurant Owner",
+    rating: 4.9,
+    img: "https://randomuser.me/api/portraits/men/17.jpg",
+  },
+  {
+    id: 8,
+    text: "I recently started using Swastik Spices in my food blog recipes, and it has improved the taste significantly. Fresh, natural, and aromatic spices always make cooking more fun and enjoyable.",
+    name: "Meera D.",
+    title: "Food Blogger",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/women/18.jpg",
+  },
+  {
+    id: 9,
+    text: "I was looking for good quality spices, and Swastik Spices really impressed me. Every dish I cook tastes better, and the aroma is so inviting. My family is happy and keeps asking for more.",
+    name: "Suresh K.",
+    title: "Chef",
+    rating: 4.8,
+    img: "https://randomuser.me/api/portraits/men/19.jpg",
+  },
+  {
+    id: 10,
+    text: "Swastik Spices are now my go-to brand for cooking at home. The flavors are strong and fresh, and even simple dishes taste amazing. Totally satisfied and will continue buying.",
+    name: "Neha R.",
+    title: "Home Cook",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/women/20.jpg",
+  },
+  {
+    id: 11,
+    text: "The first time I tried Swastik Spices, I noticed the freshness immediately. Every recipe I make tastes richer and more authentic. Packaging is neat too, which makes storage easy and convenient.",
+    name: "Arjun T.",
+    title: "Restaurant Owner",
+    rating: 4.9,
+    img: "https://randomuser.me/api/portraits/men/21.jpg",
+  },
+  {
+    id: 12,
+    text: "I cook daily for my family, and Swastik Spices are a big help. Fresh, aromatic, and long-lasting, these spices have made cooking much more enjoyable. Highly recommended for everyone who loves Indian food.",
+    name: "Pooja S.",
+    title: "Home Cook",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/women/22.jpg",
+  },
+  {
+    id: 13,
+    text: "Swastik Spices give an authentic taste to all my dishes. I use them in everyday cooking as well as special recipes. Freshness and aroma are excellent. It really feels like home-cooked food every time.",
+    name: "Karan V.",
+    title: "Chef",
+    rating: 4.9,
+    img: "https://randomuser.me/api/portraits/men/23.jpg",
+  },
+  {
+    id: 14,
+    text: "I always trust Swastik Spices when cooking for family and friends. They are fresh, flavorful, and make every dish taste amazing. It's really hard to find this quality in other brands.",
+    name: "Radhika M.",
+    title: "Food Blogger",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/women/24.jpg",
+  },
+  {
+    id: 15,
+    text: "Cooking with Swastik Spices is a delight. The freshness, aroma, and taste are all perfect. I can easily make flavorful meals without worrying about the spices losing their quality.",
+    name: "Dev P.",
+    title: "Restaurant Owner",
+    rating: 5.0,
+    img: "https://randomuser.me/api/portraits/men/25.jpg",
+  },
+];
+
+
+
 
   const StarIcon = ({ filled = true }) => (
     <svg
@@ -156,49 +246,24 @@ const ReviewSection = () => {
       `}</style>
 
       <section className="py-24 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 relative overflow-hidden">
-        {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 floating-decoration"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 floating-decoration" style={{ animationDelay: '3s' }}></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Enhanced Heading */}
           <div className="mb-16 text-center">
             <div className="inline-block mb-4">
               <span className="text-sm tracking-wider text-amber-600 font-bold uppercase bg-amber-100 px-4 py-2 rounded-full">
-                ⭐ Testimonials ⭐
+                ⭐ Swastik Spices Reviews ⭐
               </span>
             </div>
             <h2 className="text-4xl sm:text-5xl pb-1 lg:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 mb-4">
-              What Our Happy Customers Say!
+              Hear From Our Happy Customers!
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Don't just take our word for it - hear from our satisfied customers
+              Real feedback from people who love Swastik Spices
             </p>
           </div>
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto mb-16">
-            <div className="text-center">
-              <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                4.9
-              </div>
-              <div className="text-sm text-gray-600 mt-1">Average Rating</div>
-            </div>
-            <div className="text-center border-x-2 border-amber-200">
-              <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                1000+
-              </div>
-              <div className="text-sm text-gray-600 mt-1">Happy Customers</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
-                98%
-              </div>
-              <div className="text-sm text-gray-600 mt-1">Satisfaction</div>
-            </div>
-          </div>
-
-          {/* Enhanced Swiper */}
           <Swiper
             modules={[Pagination, Autoplay]}
             spaceBetween={30}
@@ -218,12 +283,9 @@ const ReviewSection = () => {
             {reviews.map((r) => (
               <SwiperSlide key={r.id}>
                 <div className="review-card p-8 h-full">
-                  {/* Quote decoration */}
                   <div className="quote-bg">
                     <QuoteIcon />
                   </div>
-
-                  {/* Star Rating */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="star-wrapper">
                       <div className="flex gap-1">
@@ -236,18 +298,12 @@ const ReviewSection = () => {
                       </span>
                     </div>
                   </div>
-
-                  {/* Quote Icon */}
                   <div className="mb-4">
                     <QuoteIcon />
                   </div>
-
-                  {/* Review Text */}
                   <p className="text-gray-700 leading-relaxed mb-8 text-base min-h-[100px]">
                     "{r.text}"
                   </p>
-
-                  {/* User Info */}
                   <div className="flex items-center gap-4 pt-6 border-t-2 border-amber-100">
                     <div className="avatar-ring">
                       <img
@@ -262,8 +318,6 @@ const ReviewSection = () => {
                     </div>
                     <div className="text-3xl">💬</div>
                   </div>
-
-                  {/* Verified Badge */}
                   <div className="mt-4 inline-flex items-center gap-2 bg-green-100 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -274,16 +328,6 @@ const ReviewSection = () => {
               </SwiperSlide>
             ))}
           </Swiper>
-
-          {/* Call to Action */}
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-6">Join thousands of satisfied customers today!</p>
-            <Link href="/products">
-            <button className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-              Get Started Now →
-            </button>
-            </Link>
-          </div>
         </div>
       </section>
     </>

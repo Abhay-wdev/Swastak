@@ -68,31 +68,48 @@ const ContactUs = () => {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">Phone</h3>
-                  <p className="text-gray-600">+91 98765 43210</p>
-                  <p className="text-gray-600">+91 12345 67890</p>
+                  <p className="text-gray-600">
+  <a 
+    href="tel:+919414545230" 
+    className="hover:underline text-gray-900"
+  >
+    +91 94145 45230
+  </a>
+</p>
+
+<p className="text-gray-600">
+  <a 
+    href="tel:+919414446467" 
+    className="hover:underline text-gray-900"
+  >
+    +91 94144 46467
+  </a>
+</p>
+
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">Email</h3>
-                  <p className="text-gray-600">info@suswastik.com</p>
-                  <p className="text-gray-600">support@suswastik.com</p>
+                  <p className="text-gray-600">
+  <a 
+    href="mailto:Suswastikspices@gmail.com" 
+    className="hover:underline text-gray-900"
+  >
+    Suswastikspices@gmail.com
+  </a>
+</p>
+
+                   
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-gray-900">Address</h3>
-                  <p className="text-gray-600">123 Spice Market Street</p>
-                  <p className="text-gray-600">Delhi, India - 110001</p>
+                  <p className="text-gray-600">P.No.8, S.No.5, Ground Floor, Naina Vihar,</p>
+                  <p className="text-gray-600">Rampura Road, Sanganer, Jaipur-302029</p>
+                   
                 </div>
 
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Working Hours
-                  </h3>
-                  <p className="text-gray-600">
-                    Monday - Saturday: 9:00 AM - 8:00 PM
-                  </p>
-                  <p className="text-gray-600">Sunday: Closed</p>
-                </div>
+                
               </div>
             </div>
 

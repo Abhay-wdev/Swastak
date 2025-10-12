@@ -1,0 +1,1220 @@
+///////////
+send the data from google sheet to frontend 
+
+
+function doGet(e) {
+  var doc = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = doc.getSheetByName('Products'); // your sheet name
+  var values = sheet.getDataRange().getValues();
+
+  var headers = values[0]; // first row = headers
+  var output = [];
+
+  for (var i = 1; i < values.length; i++) { // skip header
+    var row = {};
+    for (var j = 0; j < headers.length; j++) {
+      var key = headers[j];
+      var cellValue = values[i][j];
+
+      // Transform Faqs and ImageUrls into arrays
+      if (key === "Faqs" && cellValue) {
+        row[key] = cellValue.split(',').map(f => f.trim());
+      } else if (key === "ImageUrls" && cellValue) {
+        row[key] = cellValue.split(',').map(url => ({ url: url.trim() }));
+      } else {
+        row[key] = cellValue;
+      }
+    }
+    output.push(row);
+  }
+console.log(output)
+  return ContentService
+    .createTextOutput(JSON.stringify({ data: output }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+
+
+
+////////////////////////
+datamamagemnt admin dashboard
+//////////backend///////////
+
+  /*function AddRecord(
+  name, mobile_no, email_id, user_id, password, remark,
+  address, id_url, photo_url, disc, faq, shortdisc, realprise,weight, shortinfo, points4
+) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const dataSheet = ss.getSheetByName("Products");
+  const uniqueID = uuid();
+  const getLastRow = dataSheet.getLastRow();
+  let found_record = false;
+
+  // Prepare row data
+  const newRow = [
+    uniqueID, name, mobile_no, email_id, new Date(), user_id,
+    password, remark, address, id_url, photo_url, disc,
+    faq, shortdisc, realprise,weight,shortinfo,points4
+  ];
+
+  // Fill first empty row, if exists
+  for (let i = 2; i <= getLastRow; i++) {
+    if (!dataSheet.getRange(i, 1).getValue()) {
+      dataSheet.getRange(i, 1, 1, newRow.length).setValues([newRow]);
+      found_record = true;
+      break;
+    }
+  }
+
+  // Append if no empty row
+  if (!found_record) dataSheet.appendRow(newRow);
+
+  // Email notification
+  const message = `
+    <strong>New Product Added:</strong><br/>
+    <b>Unique ID:</b> ${uniqueID}<br/>
+    <b>Name:</b> ${name}<br/>
+    <b>Price:</b> ${mobile_no}<br/>
+    <b>Category:</b> ${email_id}<br/>
+    <b>Updated At:</b> ${new Date()}<br/>
+    <b>Description:</b> ${user_id}<br/>
+    <b>IsActive:</b> ${password}<br/>
+    <b>Stock Qty:</b> ${address}<br/>
+    <b>Images:</b> ${id_url}<br/>
+    <b>Ingredients:</b> ${photo_url}<br/>
+    <b>Short Desc:</b> ${shortdisc}<br/>
+    <b>Real Price:</b> ${realprise}<br/>
+    <b>FAQs:</b> ${remark}<br/>
+    <b>weight:</b> ${weight}<br/>
+    <b>shortinfo:</b> ${shortinfo}<br/>
+    <b>points4:</b> ${points4}<br/>
+
+    
+  `;
+
+  MailApp.sendEmail({
+    to: "abhaychorsiya55@gmail.com",
+    subject: `${name} Added Successfully`,
+    htmlBody: message
+  });
+
+  return "SUCCESS";
+}
+
+function uuid() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const dataSheet = ss.getSheetByName("Products");
+  const getLastRow = dataSheet.getLastRow();
+  const uuid_array = [];
+
+  if (getLastRow > 1) {
+    const uuid_values = dataSheet.getRange(2, 1, getLastRow - 1, 1).getValues();
+    for (let i = 0; i < uuid_values.length; i++) {
+      uuid_array.push(uuid_values[i][0]);
+    }
+
+    for (let x_count = 0; x_count < 5; x_count++) {
+      const uuid_value = Utilities.getUuid();
+      if (uuid_array.indexOf(uuid_value) === -1) return uuid_value;
+    }
+  }
+  return Utilities.getUuid();
+}
+
+function GetRecords() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const dataSheet = ss.getSheetByName("Products");
+  const getLastRow = dataSheet.getLastRow();
+  const return_Array = [];
+
+  for (let i = 2; i <= getLastRow; i++) {
+    if (dataSheet.getRange(i, 1).getValue() !== "") {
+      return_Array.push([
+        dataSheet.getRange(i, 1).getValue(), // ID
+        dataSheet.getRange(i, 2).getValue(), // Name
+        dataSheet.getRange(i, 3).getValue(), // Price
+        dataSheet.getRange(i, 4).getValue(), // Category
+        dataSheet.getRange(i, 6).getValue(), // Description
+        dataSheet.getRange(i, 7).getValue(), // IsActive
+        dataSheet.getRange(i, 8).getValue(), // Remark
+        dataSheet.getRange(i, 9).getValue(), // Address
+        dataSheet.getRange(i, 10).getValue(), // ID URL
+        dataSheet.getRange(i, 11).getValue(), // Photo URL
+        dataSheet.getRange(i, 12).getValue(), // Disc
+        dataSheet.getRange(i, 13).getValue(), // FAQ
+        dataSheet.getRange(i, 14).getValue(), // Short Disc
+        dataSheet.getRange(i, 15).getValue(),  // Real Price
+        dataSheet.getRange(i, 16).getValue(),
+        dataSheet.getRange(i, 17).getValue(),
+        dataSheet.getRange(i, 18).getValue()
+      ]);
+    }
+  }
+
+  return return_Array;
+}
+
+function SearchRecords(searchText) {
+  const allRecords = GetRecords();
+  if (!searchText) return allRecords;
+
+  const searchUpper = searchText.toUpperCase();
+  return allRecords.filter(record =>
+    record.some(cell => String(cell).toUpperCase().includes(searchUpper))
+  );
+}
+
+function DeleteRecord(record_id) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const dataSheet = ss.getSheetByName("Products");
+  const getLastRow = dataSheet.getLastRow();
+  const table_values = dataSheet.getRange(2, 1, getLastRow - 1, 15).getValues();
+
+  for (let i = 0; i < table_values.length; i++) {
+    if (table_values[i][0] == record_id) {
+      dataSheet.deleteRow(i + 2);
+      break;
+    }
+  }
+
+  MailApp.sendEmail({
+    to: "abhaychorsiya55@gmail.com",
+    subject: "Product Deleted Successfully",
+    htmlBody: "<strong>The selected product was deleted successfully.</strong>"
+  });
+
+  return "SUCCESS";
+}
+
+function UpdateRecord(
+  record_id,
+  name,
+  mobile_no,
+  email_id,
+  user_id,
+  password,
+  remark,
+  address,
+  id_url,
+  photo_url,
+  disc,
+  faq,
+  shortdisc,
+  realprise,
+  weight,
+  shortinfo,
+  points4
+
+) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const dataSheet = ss.getSheetByName("Products");
+  const getLastRow = dataSheet.getLastRow();
+  const table_values = dataSheet.getRange(2, 1, getLastRow - 1, 15).getValues();
+
+  for (let i = 0; i < table_values.length; i++) {
+    if (table_values[i][0] == record_id) {
+      const row = i + 2;
+
+      // Helper function: update only if not empty
+      const safeSet = (col, value) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          dataSheet.getRange(row, col).setValue(value);
+        }
+      };
+
+      safeSet(2, name);
+      safeSet(3, mobile_no);
+      safeSet(4, email_id);
+      safeSet(6, user_id);
+      safeSet(7, password);
+      safeSet(8, remark);
+      safeSet(9, address);
+      safeSet(10, id_url);
+      safeSet(11, photo_url);
+      safeSet(12, disc);
+      safeSet(13, faq);
+      safeSet(14, shortdisc);
+      safeSet(15, realprise);
+      safeSet(16, weight);
+      safeSet(17, shortinfo);
+      safeSet(18, points4);
+
+      break;
+    }
+  }
+
+  // Send confirmation email
+  MailApp.sendEmail({
+    to: "abhaychorsiya55@gmail.com",
+    subject: "Product Updated Successfully",
+    htmlBody: "<strong>The product record was updated successfully.</strong>",
+  });
+
+  return "SUCCESS";
+}
+*/
+
+//////////frontend///////////
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+ <link rel="stylesheet" href="stykee.css">
+ <style>
+ 
+     
+/* Ensuring text color remains black during editing */
+input[type="text"],
+input[type="email"] {
+    color: white !important;
+}
+
+.center-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem; /* Space between each input */
+    background-color: #f0f8ff;
+}
+
+/* Style for the success popup container */
+.popup {
+    position: fixed;
+    top: 40vh;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50;
+    color: white;
+    font-size: 18px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    display: none; /* Initially hidden */
+    z-index:10000;
+}
+.popup1 {
+    position: fixed;
+    top: 40vh;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgb(255, 0, 0);
+    color: white;
+    font-size: 18px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    display: none; /* Initially hidden */
+}
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Flexbox grid layout for the form */
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem; /* Space between each input */
+    width: 100%; /* Full width of the container */
+     
+}
+
+.form-container > .group {
+    flex: 1 1 calc(50% - 1rem); /* Default to 2 columns */
+    min-width: 200px; /* Minimum width for input groups */
+}
+ 
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  font-size: 30px;
+  
+}
+
+.flex-item-left {
+  background-color: #f1f1f1;
+  padding: 10px;
+  flex: 50%;
+}
+
+.flex-item-right {
+   
+  padding: 10px;
+  flex: 50%;
+}
+/* Media query for tablets */
+@media (max-width: 768px) {
+    .form-container > .group {
+        flex: 1 1 100%; /* Stack in a single column */
+        
+    }
+    .Button1 > button {
+      margin-top:25px;
+    }
+#photourl {
+    max-width: 100%;
+}
+.flex-container {
+    flex-direction: column;
+  }
+  #email_id_search{
+    width:100%;
+  }
+}
+
+/* Media query for mobile devices */
+@media (max-width: 480px) {
+    .form-container > .group {
+        flex: 1 1 10%; /* Stack in a single column */
+    }
+}
+button{
+  max-width:150px;
+  margin-top:10px;
+}
+.btn {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.grid > button {
+    max-width: 50px;
+    margin-top:10px;
+}
+
+.displayTable-container {
+    overflow: hidden;
+    max-height: 400px; /* You can adjust this value as per your requirement */
+    transition: max-height 0.5s ease-out;
+}
+.displayTable-container.open {
+    max-height: 1000px; /* A large enough value to show all content when opened */
+}
+#update_button{
+  display:none;
+}
+
+
+ 
+
+ .image-container {
+    width: 150px;
+    height: 150px;
+    border: 3px solid #4CAF50; /* Green border */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    overflow: hidden; /* Ensure content fits within the border */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    right: 0; /* Align to the right */
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure image covers the container */
+}
+.image-container .error-message {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+        }
+
+
+             #rowdata {
+    display: flex;
+    justify-content: center;  
+    z-index:500;
+}
+
+/* Improve table readability */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 200px;
+  padding: 8px;
+  vertical-align: top;
+}
+
+td div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Allow long text to wrap neatly for specific large columns */
+td.long-text div {
+  white-space: normal !important;
+  max-height: 60px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+/* Zebra stripe for better alignment visibility */
+tr:nth-child(even) {
+  background-color: #28313b;
+}
+
+/* Hover tooltip for full text */
+td div:hover {
+  white-space: normal;
+  max-height: none;
+  position: relative;
+  z-index: 999;
+   
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+
+#bouncingSvg {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgb(0, 0, 255);
+    color: white;
+    font-size: 18px;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+     
+}
+ 
+   select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: transparent; /* No background */
+        }
+
+  </style>
+<body style="margin-top:5%;background-color:#91edb4;margin-bottom:100px">
+  
+    <script>
+        var rnum = "";
+
+        function AddRow() {
+          event.preventDefault();
+            var name = document.getElementById("name").value;
+            var mobile_no = document.getElementById("mobile_no").value;
+            var email_id = document.getElementById("email_id").value;
+             var user_id = document.getElementById("user_id").value;
+              var password = document.getElementById("password").value;
+               var remark = document.getElementById("remark").value;
+               var address = document.getElementById("address").value;
+               var id_url = document.getElementById("id_url").value;
+               var photo_url = document.getElementById("photo_url").value;
+              
+               var disc = document.getElementById("disc").value;
+                var faq = document.getElementById("faq").value;
+                var shortdisc = document.getElementById("shortdisc").value;
+                var realprise = document.getElementById("realprise").value;
+              
+              var weight = document.getElementById("weight").value;
+              var shortinfo = document.getElementById("shortinfo").value;
+              var points = document.getElementById("points").value;
+              
+
+
+
+
+           google.script.run.withSuccessHandler(function(response) {
+            console.log(response);
+        if (response === "SUCCESS") {
+            showPopup("Product added Sucessfully");
+            
+            // Optionally, you can clear the input fields
+            document.getElementById("name").value = "";
+            document.getElementById("mobile_no").value = "";
+            document.getElementById("email_id").value = "";
+            document.getElementById("user_id").value = "";
+            document.getElementById("password").value = "";
+             document.getElementById("id_url").value = "";
+              document.getElementById("photo_url").value = "";
+               document.getElementById("faq").value = "";
+                document.getElementById("disc").value = "";
+               document.getElementById("remark").value = "";
+                document.getElementById("address").value = "";
+                 document.getElementById("shortdisc").value = "";
+                document.getElementById("realprise").value = "";
+
+ document.getElementById("weight").value = "";
+                 document.getElementById("shortinfo").value = "";
+                document.getElementById("points").value = "";
+
+                
+
+
+
+            document.getElementById("imageContainer").style.display = "none";
+           
+
+        } else {
+            showPopup1("Failed, Product not added in Database")
+        }
+    }).AddRecord(name,mobile_no,email_id,user_id,password,remark,address,id_url,photo_url,disc,faq,shortdisc,realprise,weight, shortinfo, points);
+            }
+        
+
+
+
+
+
+
+
+
+
+        
+ function updateData() {
+            // Simulate a successful data update
+            const updateSuccessful = true;
+
+            if (updateSuccessful) {
+                showPopup("Data Updated Sucessfully"); // Show the popup if the update is successful
+            }
+        }
+
+        // Function to display the popup
+        function showPopup(message) {
+            const popup = document.querySelector('.popup');
+            popup.textContent = message; // Set the dynamic message
+            popup.style.display = 'block'; // Show the popup
+
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 5000);
+        }
+        function UpdateRecord(row_number) {
+            var record_id = rnum;
+            var name = document.getElementById("name").value;
+            var mobile_no = document.getElementById("mobile_no").value;
+            var email_id = document.getElementById("email_id").value;
+              var user_id = document.getElementById("user_id").value;
+              var password = document.getElementById("password").value; 
+               var remark = document.getElementById("remark").value;
+                var address = document.getElementById("address").value;  
+                    var id_url = document.getElementById("id_url").value;
+                var photo_url = document.getElementById("photo_url").value;  
+                var faq = document.getElementById("faq").value; 
+                var disc = document.getElementById("disc").value; 
+
+                 var shortdisc = document.getElementById("shortdisc").value; 
+                  var realprise = document.getElementById("realprise").value; 
+
+var weight = document.getElementById("weight").value; 
+                  var shortinfo = document.getElementById("shortinfo").value;
+                  var points = document.getElementById("points").value; 
+                  
+
+
+                  shortdisc,realprise
+
+            google.script.run.withSuccessHandler(function (return_string) {
+      if (return_string == 'SUCCESS') {
+                
+             updateData();
+                SearchRecords(); // Refresh the data to show the updated record
+            } else {
+                alert('Failed to update the record.');
+            }
+            }).UpdateRecord(record_id, name, mobile_no, email_id,user_id,password, remark,address,id_url,photo_url,disc,faq,shortdisc,realprise,weight, shortinfo, points);
+        }
+
+        function EditRecord(row_number) {
+            var record_id = document.getElementById("up_record_id" + row_number).value;
+            var node_name = document.getElementById("up_name" + row_number);
+            var node_mobile = document.getElementById("up_mobile_no" + row_number);
+            var node_email = document.getElementById("up_email_id" + row_number);
+             var node_user = document.getElementById("up_user_id" + row_number);
+             var node_password = document.getElementById("up_password" + row_number);
+             var node_remark = document.getElementById("up_remark" + row_number);
+             var node_address = document.getElementById("up_address" + row_number);
+              var node_idurl = document.getElementById("up_id_url" + row_number);
+             var node_photourl = document.getElementById("up_photo_url" + row_number);
+               var node_disc = document.getElementById("up_disc" + row_number);
+             var node_faq = document.getElementById("up_faq" + row_number);
+              var node_shortdisc = document.getElementById("up_shortdisc" + row_number);
+             var node_realprise = document.getElementById("up_realprise" + row_number);
+              var node_weight = document.getElementById("up_weight" + row_number);
+               var node_shortinfo = document.getElementById("up_shortinfo" + row_number);
+                var node_points = document.getElementById("up_points" + row_number);
+
+             
+
+            var name_text = node_name.textContent || node_name.innerText;
+            var mobile_text = node_mobile.textContent || node_mobile.innerText;
+            var email_text = node_email.textContent || node_email.innerText;
+              var user_text = node_user.textContent || node_user.innerText;
+                var password_text = node_password.textContent || node_password.innerText;
+                 var remark_text = node_remark.textContent || node_remark.innerText;
+                  var address_text = node_address.textContent || node_address.innerText;
+                   var idurl_text = node_idurl.textContent || node_idurl.innerText;
+                  var photourl_text = node_photourl.textContent || node_photourl.innerText;
+                  var disc_text = node_disc.textContent || node_disc.innerText;
+                  var faq_text = node_faq.textContent || node_faq.innerText;
+var shortdisc_text = node_shortdisc.textContent || node_shortdisc.innerText;
+                  var realprise_text = node_realprise.textContent || node_realprise.innerText;
+
+                   var weight_text = node_weight.textContent || node_weight.innerText;
+                    var shortinfo_text = node_shortinfo.textContent || node_shortinfo.innerText;
+                     var points_text = node_points.textContent || node_points.innerText;
+
+
+
+
+            document.getElementById("name").value = name_text;
+            document.getElementById("mobile_no").value = mobile_text;
+            document.getElementById("email_id").value = email_text;
+             document.getElementById("user_id").value = user_text;
+              document.getElementById("password").value = password_text;
+              document.getElementById("remark").value = remark_text;
+              document.getElementById("address").value = address_text;
+               document.getElementById("id_url").value = idurl_text;
+              document.getElementById("photo_url").value = photourl_text;
+               document.getElementById("disc").value = disc_text;
+                document.getElementById("faq").value = faq_text;
+                 document.getElementById("shortdisc").value = shortdisc_text;
+                  document.getElementById("realprise").value = realprise_text;
+                   document.getElementById("weight").value = weight_text;
+                    document.getElementById("shortinfo").value = shortinfo_text;
+                     document.getElementById("points").value = points_text;
+
+                  
+               
+
+            rnum = record_id;
+        }
+
+        function DeleteRecord(row_number) {
+            var record_id = document.getElementById("up_record_id" + row_number).value;
+
+            google.script.run.withSuccessHandler(function (return_string) {
+                if (return_string == 'SUCCESS') {
+                    document.getElementById("up_record_id" + row_number).remove();
+                    document.getElementById("up_name" + row_number).remove();
+                    document.getElementById("up_mobile_no" + row_number).remove();
+                    document.getElementById("up_email_id" + row_number).remove();
+                    document.getElementById("up_user_id" + row_number).remove();
+                     document.getElementById("up_password" + row_number).remove();
+                      document.getElementById("up_remark" + row_number).remove();
+                       document.getElementById("up_address" + row_number).remove();
+                        document.getElementById("up_id_url" + row_number).remove();
+                         document.getElementById("up_photo_url" + row_number).remove();
+                           document.getElementById("up_disc" + row_number).remove();
+                             document.getElementById("up_faq" + row_number).remove();
+                             document.getElementById("up_shortdisc" + row_number).remove();
+                             document.getElementById("up_realprise" + row_number).remove();
+                             document.getElementById("up_weight" + row_number).remove();
+                             document.getElementById("up_shortinfo" + row_number).remove();
+                             document.getElementById("up_points" + row_number).remove();
+
+                                
+                            
+                     
+                    
+                    document.getElementById("up_update" + row_number).remove();
+                    document.getElementById("up_update" + row_number).remove();
+                     showPopup("Data Delated Sucessfully"); 
+                }
+            }).DeleteRecord(record_id);
+        }
+function Search1(){ document.getElementById("email_id_search").value="";
+SearchRecords();
+};
+        function SearchRecords() {
+            var name = document.getElementById("name").value;
+            var mobile_no = document.getElementById("mobile_no").value;
+            var email_id = document.getElementById("email_id").value;     
+             var user_id = document.getElementById("user_id").value;
+ var password = document.getElementById("password").value;
+
+  var remark = document.getElementById("remark").value;
+   var address = document.getElementById("address").value;
+   var id_url = document.getElementById("id_url").value;
+    var photo_url = document.getElementById("photo_url").value;
+    var disc = document.getElementById("disc").value;
+    var faq = document.getElementById("faq").value;
+    var shortdisc = document.getElementById("shortdisc").value;
+    var realprise = document.getElementById("realprise").value;
+    var weight = document.getElementById("weight").value;
+    var shortinfo = document.getElementById("shortinfo").value;
+    var points = document.getElementById("points").value;
+
+    
+
+
+
+
+
+
+
+
+
+
+            var email_id_search = document.getElementById("email_id_search").value;
+            var row_number = 0;
+
+            google.script.run.withSuccessHandler(function (ar) {
+                console.log(ar);
+                var displayTable = '<div class="cursor-pointer relative overflow-x-auto shadow-md sm:rounded-lg">';
+        displayTable += '<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">';
+        displayTable += '<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">';
+        displayTable += '<tr>';  
+        displayTable += '<th scope="col" class=" px-6 py-3">Action</th>';
+        displayTable += '<th scope="col" class=" px-6 py-3">Name</th>';
+        displayTable += '<th scope="col" class=" px-6 py-3">Price</th>';
+         displayTable += '<th scope="col" class=" px-6 py-3"> shortdisc</th>';
+          displayTable += '<th scope="col" class=" px-6 py-3">realprise</th>';
+        displayTable += '<th scope="col" class=" px-6 py-3">Category</th>';
+         displayTable += '<th scope="col" class=" px-6 py-3">Description</th>';
+          displayTable += '<th scope="col" class=" px-6 py-3">IsActive</th>';
+           displayTable += '<th scope="col" class=" px-6 py-3">faqs</th>';
+            displayTable += '<th scope="col" class=" px-6 py-3">StockQuantity</th>';
+             displayTable += '<th scope="col" class=" px-6 py-3">ImageUrls</th>';
+              displayTable += '<th scope="col" class=" px-6 py-3">Ingredients</th>';
+              displayTable += '<th scope="col" class=" px-6 py-3">NutritionalBenefits</th>';
+              displayTable += '<th scope="col" class=" px-6 py-3">Shipping&Returns</th>';
+displayTable += '<th scope="col" class=" px-6 py-3">Peight</th>';
+displayTable += '<th scope="col" class=" px-6 py-3">Phortinfo</th>';
+displayTable += '<th scope="col" class=" px-6 py-3">points</th>';
+
+
+ 
+
+        displayTable += '</tr>';
+        displayTable += '</thead>';
+        displayTable += '<tbody>';
+
+                ar.forEach(function (item, index) {
+ displayTable += "<input type=\"hidden\" id=\"up_record_id" + row_number + "\" value=\"" + item[0] + "\" />";
+
+                   displayTable += '<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">';
+            displayTable += '<td class="px-6 py-4">';
+ 
+                   displayTable += "<span id=\"up_update" + row_number + "\" onclick=\"EditRecord(" + row_number + ")\" class=\"font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer\">" +"Edit  "+"<span class=\"hover:pointer\">"+" |"+"</span>"+"</span>";
+                     displayTable += "<span id=\"up_update" + row_number + "\"  onclick=\"DeleteRecord(" + row_number + ")\"  class=\"font-medium text-red-600 dark:text-red-500 hover:underline cursor-pointer\">"+"  Delete"+"</span>";
+  
+
+                      displayTable += '</td>';
+                    displayTable += '<td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">';
+
+                    displayTable += "<div id=\"up_name" + row_number + "\">";
+                    displayTable += item[1];
+                    displayTable += "</div>";
+                     displayTable += '</td>';
+
+                      displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_mobile_no" + row_number + "\">";
+                    displayTable += item[2];
+                    displayTable += "</div>";
+                     displayTable += '</td>';
+                     
+  
+
+displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_shortdisc" + row_number + "\">"+ item[12] +"</div>";
+                    displayTable += '</td>';
+                    displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_realprise" + row_number + "\">"+ item[13] +"</div>";
+                    displayTable += '</td>';
+
+
+
+                      displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_email_id" + row_number + "\">"+ item[3] +"</div>";
+                    displayTable += '</td>';
+
+                     displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_user_id" + row_number + "\">"+ item[4] +"</div>";
+                    displayTable += '</td>';
+                     displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_password" + row_number + "\">"+ item[5] +"</div>";
+                    displayTable += '</td>';
+                     displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_remark" + row_number + "\">"+ item[6] +"</div>";
+                    displayTable += '</td>';
+                     displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_address" + row_number + "\">"+ item[7] +"</div>";
+                    displayTable += '</td>';
+                     displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_id_url" + row_number + "\">"+ item[8] +"</div>";
+                    displayTable += '</td>';
+                     displayTable += '<td class="px-6 py-4">';
+                    displayTable += "<div id=\"up_photo_url" + row_number + "\">"+ item[9] +"</div>";
+                    displayTable += '</td>';
+                    displayTable += '<td class="px-6 py-4 long-text">';
+                    displayTable += "<div id=\"up_disc" + row_number + "\">"+ item[10] +"</div>";
+                    displayTable += '</td>';
+                   displayTable += '<td class="px-6 py-4 long-text">';
+                    displayTable += "<div id=\"up_faq" + row_number + "\">"+ item[11] +"</div>";
+                    displayTable += '</td>';
+
+
+
+                   displayTable += '<td class="px-6 py-4 long-text">';
+                    displayTable += "<div id=\"up_weight" + row_number + "\">"+ item[14] +"</div>";
+                    displayTable += '</td>';
+                    
+                   displayTable += '<td class="px-6 py-4 long-text">';
+                    displayTable += "<div id=\"up_shortinfo" + row_number + "\">"+ item[15] +"</div>";
+                    displayTable += '</td>';
+                    
+                   displayTable += '<td class="px-6 py-4 long-text">';
+                    displayTable += "<div id=\"up_points" + row_number + "\">"+ item[16] +"</div>";
+                    displayTable += '</td>';
+
+
+
+                    
+                    row_number++;
+                });
+ displayTable += '</tbody>';
+        displayTable += '</table>';
+                displayTable += '</div>';
+                document.getElementById("rowdata").innerHTML = displayTable;
+            }).SearchRecords(email_id_search);
+             setTimeout(function() {
+        const tableContainer = document.getElementById('rowdata'); // Corrected ID reference
+        tableContainer.scrollIntoView({ behavior: 'smooth' });
+    }, 3000);
+        }
+       
+    </script>
+   <div class="center-container">
+        <!-- Success popup -->
+        <div class="popup">Data Updated Successfully!</div>
+    </div>
+    <div class="block p-6 rounded-lg shadow-lg bg-[#0f4c81] mx-8 my-8">
+        <form id="signupForm">
+          <div style="display: flex; 
+    justify-content: center; 
+    
+    
+    font-weight: 900; 
+    
+    background: #0f4c81;
+    padding-bottom:30px; 
+    color: white;"> Product Management </div>
+            <div class="grid grid-cols-1 gap-4">
+
+
+
+              <div class="form-container">
+
+
+
+                <div class="relative z-0 w-full mb-6 group">
+                    <input type="text" name="name" id="name"
+                        class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" " required />
+                    <label
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                        Name
+                    </label>
+                </div>
+                <div class="relative z-0 w-full mb-6 group">
+                    <input type="text" name="mobile_no" id="mobile_no"
+                        class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" " required />
+                    <label
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                       Discounted Prise
+                    </label>
+                </div>
+
+                  
+ <div class="relative z-0 w-full mb-6 group">
+                    <input type="text" name="shortdisc" id="shortdisc"
+                        class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" " required />
+                    <label
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                        Shortdisc
+                    </label>
+                </div>
+                 <div class="relative z-0 w-full mb-6 group">
+                    <input type="text" name="realprise" id="realprise"
+                        class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" " required />
+                    <label
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                        Realprise
+                    </label>
+                </div>
+
+
+
+
+
+                <div class="relative z-0 w-full mb-6 group">
+                   
+   <input type="text" name="email_id" id="email_id"
+                        class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" " required />
+                    <label
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                        Category
+                    </label>
+ 
+                </div>
+              
+                <div class="relative z-0 w-full mb-6 group">
+  <textarea name="user_id" id="user_id" rows="4" required
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="user_id"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    Description
+  </label>
+</div>
+
+                    <div class="relative z-0 w-full mb-6 group">
+                    <select required name="password" id="password"
+    class="block py-2.5 px-0 w-full text-sm   bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white focus:outline-none focus:ring-0 focus:border-blue-600 peer">
+    
+    <option class="dark:text-black dark:border-black" value="true">Active</option>
+    <option class="dark:text-black dark:border-black" value="false">DeActive</option>
+    
+  </select>
+  <label for="password"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    IsActive
+  </label>
+                    </div>
+                    <div class="relative z-0 w-full mb-6 group">
+                    <input type="text" name="address" id="address"
+                        class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                        placeholder=" "  />
+                    <label
+                        class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                       StockQuantity
+                    </label> </div>
+                    <div class="relative z-0 w-full mb-6 group">
+  <textarea name="id_url" id="id_url" rows="4" 
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="id_url"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    ImageUrls
+  </label>
+</div>
+
+                     <div class="relative z-0 w-full mb-6 group">
+  <textarea name="photo_url" id="photo_url" rows="4"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="photo_url"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    Ingredients
+  </label>
+</div>
+
+  
+
+ <div class="relative z-0 w-full mb-6 group">
+ 
+  <input
+    type="text"
+    name="weight"
+    id="weight"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "
+  />
+  <label
+    for="weight"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+  >
+    Weight
+  </label>
+ 
+
+</div>
+ <div class="relative z-0 w-full mb-6 group">
+  <textarea name="shortinfo" id="shortinfo" rows="4"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="shortinfo"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    Shortinfo
+  </label>
+</div>
+ <div class="relative z-0 w-full mb-6 group">
+  <textarea name="points" id="points" rows="4"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="points"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    points
+  </label>
+</div>
+
+                    
+                  <div class="relative z-0 w-full mb-6 group">
+  <textarea name="disc" id="disc" rows="4"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="disc"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    Nutritional Benefits
+  </label>
+</div>
+
+ <div class="relative z-0 w-full mb-6 group">
+  <textarea name="faq" id="faq" rows="4"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="faq"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    Shipping & Returns
+  </label>
+</div>
+
+                   
+
+                     <div style="max-width: 30%;" class="relative z-0 w-full mb-6 group">
+  <textarea name="remark" id="remark" rows="4"
+    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+    placeholder=" "></textarea>
+  <label for="remark"
+    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+    Faqs
+  </label>
+</div>
+
+                </div>
+                      </div>
+            </div>
+            <div class="btn">
+                <button type="submit"
+                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                    onclick="AddRow()" id="add_button">Save</button>
+                <button type="button" style="display:block"
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    onclick="UpdateRecord()" id="update_button">Update</button>
+                <button type="reset"
+                    class="text-white bg-orange-700 hover:bg-orange-800 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-orange-600 dark:hover:bg-orange-700 dark:focus:ring-orange-800">Clear</button>
+            </div>
+        </form>
+    </div>
+ <div class="flex-container">   
+          <div class="flex-item-left bg-[#0f4c81]">
+
+    <div class="block p-6 rounded-lg shadow-lg bg-[#0f4c81] mx-8 my-8">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="relative z-0 w-full mb-6 group">
+                <input type="text" id="email_id_search"
+                    class="block py-2.5 px-0 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white appearance-none dark:text-white dark:border-white dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                    placeholder=" " />
+                <label for="floating_email"
+                    class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:left-0 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">Name</label>
+            </div>
+             </div>
+            <span class="flex-item-right">
+                <button type="button"
+                    class="text-white bg-blue-700 hover:bg-blue-800 max-w-[450px] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    onclick="SearchRecords()">Search</button>
+                     <button type="button"
+                    class="text-white bg-blue-700 hover:bg-blue-800 max-w-[450px] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 A1"
+                    onclick="Search1()">All Records</button>
+            </span>
+        </div>  
+        <div id="rowdata"></div>
+    </div>
+    </div>
+    
+
+    <style>
+        #image-container {
+            margin-top: 20px;
+        }
+#rowdata{
+  z-index:10;
+}
+        img {
+            max-width: 100%;
+            height: auto;
+            display: none; /* Initially hidden */
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    
+   
+    <script>
+        function handleImagePreview(inputId, containerId, errorMessage) {
+      const imageInput = document.getElementById(inputId);
+      const imageContainer = document.getElementById(containerId);
+
+      setInterval(function() {
+        const imageUrl = imageInput.value;
+        imageContainer.innerHTML = ''; // Clear previous content
+
+        if (imageUrl) {
+          const img = document.createElement('img');
+          img.src = imageUrl;
+
+          // Handle successful image load
+          img.onload = function() {
+            img.style.display = 'block';
+            imageContainer.innerHTML = ''; // Clear error message if any
+            imageContainer.appendChild(img);
+          };
+
+          // Handle image load error
+          img.onerror = function() {
+            imageContainer.innerHTML = `<div class="error-message">${errorMessage}</div>`;
+          };
+
+          // Append the image element (initially hidden)
+          imageContainer.appendChild(img);
+        }
+      }, 5000); // Check every 2 seconds (2000 milliseconds)
+    }
+
+        // Initialize both input fields with specific error messages
+        handleImagePreview('id_url', 'image-container-1', 'ID Image is not found. Please check the url');
+        handleImagePreview('photo_url', 'image-container-2', 'Photo is not found. Please check the url');
+        
+    </script>
+     
+</body>
+
+</html>
+

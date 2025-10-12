@@ -12,6 +12,13 @@ import Link from "next/link";
 const ProductDetail = ({ products = [] }) => {
   const fallbackImage = "https://via.placeholder.com/300x300?text=No+Image";
 
+  // Helper to ensure points are always an array
+  const normalizePoints = (val) => {
+    if (Array.isArray(val)) return val;
+    if (typeof val === "string" && val.trim() !== "") return val.split(",").map(p => p.trim());
+    return [];
+  };
+
   return (
     <>
       <style>{`
@@ -22,66 +29,58 @@ const ProductDetail = ({ products = [] }) => {
           margin: 0 8px !important;
           background: #cbd5e1 !important;
           opacity: 1 !important;
+          display: none !important;
           transition: all 0.3s ease !important;
         }
+
         .swiper-pagination-bullet-active {
           width: 2px !important;
           background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
         }
-
         .swiper-button-next,
         .swiper-button-prev {
           width: 30px !important;
           height: 30px !important;
-          
           background: white !important;
           border-radius: 10% !important;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
           transition: all 0.3s ease !important;
         }
-        
         .swiper-button-next:after,
         .swiper-button-prev:after {
           font-size: 10px !important;
           font-weight: bold !important;
           color: green !important;
         }
-        
         .swiper-button-next:hover,
         .swiper-button-prev:hover {
           background: #f59e0b !important;
           transform: scale(1.1);
           box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3) !important;
         }
-        
         .swiper-button-next:hover:after,
         .swiper-button-prev:hover:after {
           color: white !important;
         }
-
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
         }
-
         .product-card {
           background: white;
           border-radius: 20px;
           overflow: hidden;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .product-card:hover {
           transform: translateY(-8px);
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
         }
-
         .image-wrapper {
           position: relative;
           overflow: hidden;
           background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
         }
-
         .image-wrapper::before {
           content: '';
           position: absolute;
@@ -92,11 +91,9 @@ const ProductDetail = ({ products = [] }) => {
           background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
           transition: left 0.5s;
         }
-
         .product-card:hover .image-wrapper::before {
           left: 100%;
         }
-
         .discount-badge {
           position: absolute;
           top: 16px;
@@ -110,27 +107,23 @@ const ProductDetail = ({ products = [] }) => {
           box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
           z-index: 10;
         }
-
         .category-badge {
           background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
           color: white;
           font-weight: 600;
           box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
         }
-
         .price-tag {
           background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
           padding: 8px 16px;
           border-radius: 12px;
           display: inline-block;
         }
-
         .highlight-tag {
           background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
           border: 1px solid #d1d5db;
           transition: all 0.3s ease;
         }
-
         .highlight-tag:hover {
           background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
           border-color: #fbbf24;
@@ -185,19 +178,20 @@ const ProductDetail = ({ products = [] }) => {
                 ? Math.round(((product.realprice - product.disprice) / product.realprice) * 100)
                 : 0;
 
+              const pointsArray = normalizePoints(product.points4);
+
               return (
                 <SwiperSlide key={product.id}>
-                   <Link href={`/products/${product.name}`}>
-                  <div className="product-card max-w-md mx-auto">
-                    {/* Discount Badge */}
-                    {discount > 0 && (
-                      <div className="discount-badge">
-                        {discount}% OFF
-                      </div>
-                    )}
+                  <Link href={`/products/${product.name}`}>
+                    <div className="product-card max-w-md mx-auto">
+                      {/* Discount Badge */}
+                      {discount > 0 && (
+                        <div className="discount-badge">
+                          {discount}% OFF
+                        </div>
+                      )}
 
-                    {/* Product Image */}
-                   
+                      {/* Product Image */}
                       <div className="image-wrapper relative w-full h-64 sm:h-72 md:h-80">
                         <img
                           src={product.imageUrls?.[0] || fallbackImage}
@@ -205,72 +199,63 @@ const ProductDetail = ({ products = [] }) => {
                           className="w-full h-full object-contain transition-transform duration-500 hover:scale-110 p-4"
                         />
                       </div>
-                   
 
-                    {/* Product Info */}
-                    <div className="p-6 space-y-4">
-                      {/* Title and Category */}
-                      <div className="flex justify-between items-start gap-3">
-                        <h3 className="text-xl font-bold text-gray-900 leading-tight hover:text-amber-600 transition-colors">
-                          {product.name}
-                        </h3>
-                        <span className="category-badge text-xs px-3 py-1.5 rounded-full capitalize whitespace-nowrap">
-                          {product.category}
-                        </span>
-                      </div>
+                      {/* Product Info */}
+                      <div className="p-6 space-y-4">
+                        {/* Title and Category */}
+                        <div className="flex justify-between items-start gap-3">
+                          <h3 className="text-xl font-bold text-gray-900 leading-tight hover:text-amber-600 transition-colors">
+                            {product.name}
+                          </h3>
+                          <span className="category-badge text-xs px-3 py-1.5 rounded-full capitalize whitespace-nowrap">
+                            {product.category}
+                          </span>
+                        </div>
 
-                      {/* Description */}
-                      <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                        {product.shortdisc}
-                      </p>
+                        {/* Description */}
+                        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                          {product.shortdisc}
+                        </p>
 
-                      {/* Price Section */}
-                      <div className="flex flex-wrap justify-between items-center gap-3 pt-2">
-                        <div className="price-tag">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-extrabold text-green-700">
-                              ₹{product.disprice}
-                            </span>
-                            {product.realprice < product.disprice && (
-                              <span className="text-gray-500 line-through text-base font-medium">
-                                ₹{product.realprice} 
+                        {/* Price Section */}
+                        <div className="flex flex-wrap justify-between items-center gap-3 pt-2">
+                          <div className="price-tag">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-3xl font-extrabold text-green-700">
+                                ₹{product.disprice}
                               </span>
-                               
-                            )}
-                            <span className="text-sm line-through font-medium text-gray-600">
-                            {product.realprise} 
-                            </span>
-                             
-                            
-                             
-                            
+                              {product.realprice < product.disprice && (
+                                <span className="text-gray-500 line-through text-base font-medium">
+                                  ₹{product.realprice} 
+                                </span>
+                              )}
+                              <span className="text-sm line-through font-medium text-gray-600">
+                                {product.realprise} 
+                              </span>
+                            </div>
+                          </div>
+                          <div className="bg-white border-2 border-amber-200 px-3 py-1.5 rounded-lg">
+                            <p className="text-xs font-semibold text-gray-700">
+                              📦 {product.weight}
+                            </p>
                           </div>
                         </div>
-                        <div className="bg-white border-2 border-amber-200 px-3 py-1.5 rounded-lg">
-                          <p className="text-xs font-semibold text-gray-700">
-                            📦 {product.weight}
-                           
-                          </p>
-                        </div>
+
+                        {/* Product Highlights */}
+                        {pointsArray.length > 0 && (
+                          <div className="grid grid-cols-2 gap-2 pt-4">
+                            {pointsArray.slice(0, 2).map((p, i) => (
+                              <span
+                                key={i}
+                                className="highlight-tag text-gray-700 text-xs font-medium text-center px-3 py-2 rounded-lg truncate"
+                              >
+                                ✓ {p}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-
-                      {/* Product Highlights */}
-                      {product.points4 && product.points4.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2 pt-4">
-                          {product.points4.slice(0, 2).map((p, i) => (
-                            <span
-                              key={i}
-                              className="highlight-tag text-gray-700 text-xs font-medium text-center px-3 py-2 rounded-lg truncate"
-                            >
-                              ✓ {p}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      
                     </div>
-                  </div>
                   </Link>
                 </SwiperSlide>
               );

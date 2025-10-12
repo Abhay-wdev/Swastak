@@ -4,6 +4,7 @@ export default function AboutUspage() {
     return (
    <>
    <AboutUs/>
+   
    </>
     );
   }

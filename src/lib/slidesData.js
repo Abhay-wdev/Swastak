@@ -4,7 +4,7 @@
 export const fetchAndStoreSlides = async () => {
   try {
     const res = await fetch(
-      'https://script.google.com/macros/s/AKfycbwxf7qKfRkRMCUBCo2vHFAEgRtQiHUZF9Dyl1IQ7zQ01xcsRF8avMP-5Cr4qxvQRpjRGg/exec'
+      'https://script.google.com/macros/s/AKfycbxQnHqZ5WNVQYombMTmdpYb3-_ZKafAN9XRDQH6g6HrQ7WQhIten0EUpmWIlyDldtI1/exec'
     );
     const json = await res.json();
 
