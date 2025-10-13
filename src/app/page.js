@@ -46,7 +46,9 @@ export default function Home() {
     <>
       <HeroSection slides={slides} />
       <UspRibbonSection />
-      <ProductCards products={products} />
+      {/* <ProductCards products={products} /> */}
+
+     
       <ScrollingCrousal />
       <ReviewSection />
       <WhyChooseSuswastik />
