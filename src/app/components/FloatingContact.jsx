@@ -8,7 +8,7 @@ import { FaWhatsapp } from "react-icons/fa6";
 
 const FloatingContact = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const phoneNumber = "+916378362945";
+  const phoneNumber = "+919414545230";
 
   const handleCallClick = () => {
     if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {

@@ -24,68 +24,52 @@ export default function ProductDetailPage() {
     if (foundProduct) {
       setProduct(foundProduct);
       setSelectedImageIndex(0);
-      
-      // Check if product is already in cart and set initial quantity
+
       const cart = cartStorage.getCart();
-      const existingItem = cart.find(item => item.id === foundProduct.id);
-      if (existingItem) {
-        setQuantity(existingItem.quantity);
-      } else {
-        setQuantity(1);
-      }
+      const existingItem = cart.find((item) => item.id === foundProduct.id);
+      setQuantity(existingItem ? existingItem.quantity : 1);
     } else {
       setProduct(null);
     }
   }, [slug]);
 
-  // Listen for cart updates from other components
   useEffect(() => {
     const handleCartUpdated = () => {
       if (!product) return;
       const cart = cartStorage.getCart();
-      const existingItem = cart.find(item => item.id === product.id);
-      if (existingItem) {
-        setQuantity(existingItem.quantity);
-      } else {
-        setQuantity(1);
-      }
+      const existingItem = cart.find((item) => item.id === product.id);
+      setQuantity(existingItem ? existingItem.quantity : 1);
     };
-
     window.addEventListener('cartUpdated', handleCartUpdated);
     return () => window.removeEventListener('cartUpdated', handleCartUpdated);
   }, [product]);
 
-  const handleAddToCart = () => {
+  const updateCartQuantity = (newQuantity) => {
     if (!product) return;
-    
-    const cart = cartStorage.getCart();
-    const existingItem = cart.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      // Update quantity of existing item
-      cartStorage.updateQuantity(product.id, quantity);
-      toast.success(`${product.name} quantity updated to ${quantity}!`);
+
+    if (newQuantity <= 0) {
+      cartStorage.removeFromCart(product.id);
+      setQuantity(0);
     } else {
-      // Add new item to cart
-      cartStorage.addToCart(product, quantity);
-      toast.success(`${product.name} added to cart!`);
+      const cart = cartStorage.getCart();
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        cartStorage.updateQuantity(product.id, newQuantity);
+      } else {
+        cartStorage.addToCart(product, newQuantity);
+      }
+      setQuantity(newQuantity);
     }
-    
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
-  const updateQuantity = (change) => {
-    const newQuantity = Math.max(1, Math.min(quantity + change, product.stockQuantity));
-    setQuantity(newQuantity);
-    
-    // Check if product is in cart
-    const cart = cartStorage.getCart();
-    const existingItem = cart.find(item => item.id === product.id);
-    
-    if (existingItem) {
-      // Live update cart when product is already in cart
-      cartStorage.updateQuantity(product.id, newQuantity);
-      window.dispatchEvent(new Event('cartUpdated'));
+  const handleAddToCart = () => {
+    updateCartQuantity(quantity);
+    const inCart = cartStorage.getCart().find((i) => i.id === product.id);
+    if (inCart) {
+      toast.success(`${product.name} quantity updated to ${quantity}!`);
+    } else {
+      toast.success(`${product.name} added to cart!`);
     }
   };
 
@@ -97,8 +81,8 @@ export default function ProductDetailPage() {
     );
   }
 
-  const images = product.imageUrls ? product.imageUrls.split(',').filter(img => img && img.trim() !== '') : [];
-  const highlights = product.points4 ? product.points4.split(',').filter(p => p && p.trim() !== '') : [];
+  const images = product.imageUrls ? product.imageUrls.split(',').filter((img) => img && img.trim() !== '') : [];
+  const highlights = product.points4 ? product.points4.split(',').filter((p) => p && p.trim() !== '') : [];
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
@@ -109,46 +93,38 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Main Product Section */}
-        <div className="bg-white  rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-8">
-           {/* Image Gallery */}
-<div className="w-full  lg:w-1/2">
-  {/* Main Image */}
-  <div className="bg-gray-100 border  rounded-lg overflow-hidden mb-4 flex items-center justify-center" >
-    <img
-      src={images[selectedImageIndex] || images[0]}
-      alt={product.name}
-      className="max-w-full max-h-full h-100 object-contain"
-    />
-  </div>
-
-  {/* Thumbnails */}
-  {images.length > 1 && (
-    <div className="flex gap-3 overflow-x-auto pb-2">
-      {images.map((img, i) => (
-        <img
-          key={i}
-          src={img}
-          alt={`View ${i + 1}`}
-          onClick={() => setSelectedImageIndex(i)}
-          className={`
-            w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition flex-shrink-0
-            ${selectedImageIndex === i ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'}
-          `}
-        />
-      ))}
-    </div>
-  )}
-</div>
-
+            {/* Image Gallery */}
+            <div className="w-full lg:w-1/2">
+              <div className="bg-gray-100 border rounded-lg overflow-hidden mb-4 flex items-center justify-center">
+                <img
+                  src={images[selectedImageIndex] || images[0]}
+                  alt={product.name}
+                  className="max-w-full max-h-full h-100 object-contain"
+                />
+              </div>
+              {images.length > 1 && (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {images.map((img, i) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt={`View ${i + 1}`}
+                      onClick={() => setSelectedImageIndex(i)}
+                      className={`w-20 h-20 object-cover rounded-lg border-2 cursor-pointer transition flex-shrink-0 ${
+                        selectedImageIndex === i ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Product Info */}
-            <div className="lg:w-1/2">
+            <div className="lg:w-1/2 flex flex-col">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-              
-              {product.shortdisc && (
-                <p className="text-gray-600 mb-4">{product.shortdisc}</p>
-              )}
+              {product.shortdisc && <p className="text-gray-600 mb-4">{product.shortdisc}</p>}
 
               {/* Price Section */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -162,38 +138,33 @@ export default function ProductDetailPage() {
                 <p className="text-sm text-gray-600">Inclusive of all taxes</p>
               </div>
 
-             {/* Weight & Stock */}
-<div className="flex flex-wrap gap-4 mb-6">
-  {product.weight && (
-    <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg min-w-[120px]">
-      <span className="text-sm text-gray-600">Weight:</span>
-      <span className="font-semibold text-gray-900">{product.weight}</span>
-    </div>
-  )}
-  <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg min-w-[120px]">
-    <span className="text-sm text-gray-600">Stock:</span>
-    <span className="font-semibold text-green-600">{product.stockQuantity} Available</span>
-  </div>
-</div>
-
+              {/* Weight & Stock */}
+              <div className="flex flex-wrap gap-4 mb-6">
+                {product.weight && (
+                  <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg min-w-[120px]">
+                    <span className="text-sm text-gray-600">Weight:</span>
+                    <span className="font-semibold text-gray-900">{product.weight}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg min-w-[120px]">
+                  <span className="text-sm text-gray-600">Stock:</span>
+                  <span className="font-semibold text-green-600">{product.stockQuantity} Available</span>
+                </div>
+              </div>
 
               {/* Highlights */}
               {highlights.length > 0 && highlights[0] !== '' && (
-               <div className="mb-6">
-  <h3 className="font-semibold text-gray-900 mb-3">Key Highlights</h3>
-  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2   p-2 rounded">
-    {highlights.map((point, i) => (
-      <li
-        key={i}
-        className="flex items-start gap-2  p-2 rounded bg-gray-50"
-      >
-        <span className="text-green-600 mt-1">✓</span>
-        <span className="text-gray-700">{point.trim()}</span>
-      </li>
-    ))}
-  </ul>
-</div>
-
+                <div className="mb-6">
+                  <h3 className="font-semibold text-gray-900 mb-3">Key Highlights</h3>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-2 rounded">
+                    {highlights.map((point, i) => (
+                      <li key={i} className="flex items-start gap-2 p-2 rounded bg-gray-50">
+                        <span className="text-green-600 mt-1">✓</span>
+                        <span className="text-gray-700">{point.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {/* Quantity Selector */}
@@ -201,24 +172,20 @@ export default function ProductDetailPage() {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">Quantity</label>
                 <div className="flex items-center gap-4">
                   <button
-                    onClick={() => updateQuantity(-1)}
+                    onClick={() => updateCartQuantity(quantity - 1)}
                     disabled={quantity <= 1}
                     className={`w-10 h-10 flex items-center justify-center rounded-lg transition font-semibold ${
-                      quantity <= 1 
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                        : 'bg-gray-200 hover:bg-gray-300'
+                      quantity <= 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'
                     }`}
                   >
                     -
                   </button>
                   <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
                   <button
-                    onClick={() => updateQuantity(1)}
+                    onClick={() => updateCartQuantity(quantity + 1)}
                     disabled={quantity >= product.stockQuantity}
                     className={`w-10 h-10 flex items-center justify-center rounded-lg transition font-semibold ${
-                      quantity >= product.stockQuantity
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-200 hover:bg-gray-300'
+                      quantity >= product.stockQuantity ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300'
                     }`}
                   >
                     +
@@ -234,79 +201,33 @@ export default function ProductDetailPage() {
                 onClick={handleAddToCart}
                 className="w-full bg-orange-500 text-white py-4 rounded-lg hover:bg-orange-600 transition text-lg font-semibold shadow-md"
               >
-                {cartStorage.getCart().find(item => item.id === product.id) ? 'Update Cart' : 'Add to Cart'}
+                {cartStorage.getCart().find((item) => item.id === product.id) ? 'Update Cart' : 'Add to Cart'}
               </button>
-
-              {/* Category Badge */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                  {product.category}
-                </span>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Tabs Section */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="flex border-b border-gray-200 overflow-x-auto">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex flex-wrap gap-4 mb-6 border-b border-gray-200">
             {['description', 'ingredients', 'benefits', 'faqs', 'shipping'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition ${
-                  activeTab === tab
-                    ? 'border-b-2 border-orange-500 text-orange-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                className={`py-2 px-4 font-semibold rounded ${
+                  activeTab === tab ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {tab === 'description' && 'Description'}
-                {tab === 'ingredients' && 'Ingredients'}
-                {tab === 'benefits' && 'Nutritional Benefits'}
-                {tab === 'faqs' && 'FAQs'}
-                {tab === 'shipping' && 'Shipping & Returns'}
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
           </div>
-
-          <div className="p-6">
-            {activeTab === 'description' && (
-              <div className="prose max-w-none">
-                <p className="text-gray-700 leading-relaxed">{product.description}</p>
-              </div>
-            )}
-
-            {activeTab === 'ingredients' && (
-              <div className="prose max-w-none">
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {product.ingredients}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'benefits' && (
-              <div className="prose max-w-none">
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {product.nutritionalBenefits}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'faqs' && (
-              <div className="prose max-w-none">
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {product.faqs}
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'shipping' && (
-              <div className="prose max-w-none">
-                <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                  {product['shipping&Returns']}
-                </div>
-              </div>
-            )}
+          <div className="text-gray-700">
+            {activeTab === 'description' && <p>{product.description || 'No description available.'}</p>}
+            {activeTab === 'ingredients' && <p>{product.ingredients || 'No ingredients info available.'}</p>}
+            {activeTab === 'benefits' && <p>{product.nutritionalBenefits || 'No benefits info available.'}</p>}
+            {activeTab === 'faqs' && <p>{product.faqs || 'No FAQs available.'}</p>}
+            {activeTab === 'shipping' && <p>{product.shippingReturns || 'No shipping info available.'}</p>}
           </div>
         </div>
       </div>

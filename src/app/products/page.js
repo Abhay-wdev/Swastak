@@ -34,7 +34,7 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [selectedWeight, setSelectedWeight] = useState('all'); // New weight filter
+  const [selectedWeight, setSelectedWeight] = useState('all');
 
   // Weight options
   const weightOptions = [
@@ -52,7 +52,6 @@ export default function ProductsPage() {
   // Load products
   const fetchProducts = async () => {
     setLoading(true);
-
     let storedProducts = localStorage.getItem('products');
     if (storedProducts) {
       storedProducts = JSON.parse(storedProducts);
@@ -60,7 +59,6 @@ export default function ProductsPage() {
       storedProducts = defaultProducts;
       localStorage.setItem('products', JSON.stringify(defaultProducts));
     }
-
     setProducts(storedProducts);
     setLoading(false);
   };
@@ -68,6 +66,13 @@ export default function ProductsPage() {
   useEffect(() => {
     setCart(cartStorage.getCart());
     fetchProducts();
+
+    // Listen for cart changes in other tabs
+    const handleStorageChange = () => {
+      setCart(cartStorage.getCart());
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Apply filters
@@ -79,7 +84,9 @@ export default function ProductsPage() {
     // Category filter
     if (selectedCategory !== 'all') {
       tempProducts = tempProducts.filter(
-        (p) => (p.category || '').trim().toLowerCase() === selectedCategory.toLowerCase()
+        (p) =>
+          (p.category || '').trim().toLowerCase() ===
+          selectedCategory.toLowerCase()
       );
     }
 
@@ -96,15 +103,16 @@ export default function ProductsPage() {
 
     // In-stock filter
     if (inStockOnly) {
-      tempProducts = tempProducts.filter((p) => Number(p.stockQuantity) > 0);
+      tempProducts = tempProducts.filter(
+        (p) => Number(p.stockQuantity) > 0
+      );
     }
 
     // Weight filter
     if (selectedWeight !== 'all') {
       tempProducts = tempProducts.filter((p) => {
         if (!p.weight) return false;
-
-        const weightStr = p.weight.toLowerCase().replace(/\s+/g, ''); // e.g., "250g"
+        const weightStr = p.weight.toLowerCase().replace(/\s+/g, '');
         const [min, max] =
           selectedWeight.includes('-')
             ? selectedWeight.replace('g', '').split('-').map(Number)
@@ -130,88 +138,107 @@ export default function ProductsPage() {
     toast.success(`${product.name} added to cart!`);
   };
 
+  // Real-time cart quantity update (for same product add)
+  useEffect(() => {
+    const updatedCart = cartStorage.getCart();
+    setCart(updatedCart);
+  }, [cartStorage.getCartCount()]); // trigger on quantity change
+
   // Extract unique categories
   const categories = [
     'all',
     ...Array.from(
-      new Set(products.map((p) => (p.category || '').trim()).filter(Boolean))
+      new Set(
+        products.map((p) => (p.category || '').trim()).filter(Boolean)
+      )
     ),
   ];
 
   return (
     <div>
-    <div className="container mx-auto px-4 py-10">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Our Products</h1>
+      <div className="container mx-auto px-4 py-10">
+        <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">
+          Our Products
+        </h1>
 
-      {/* Filters */}
-      <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 flex-wrap">
-        {/* Category buttons */}
-        <div className="flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-5 py-2 rounded-lg font-semibold transition-all duration-200 border ${
-                selectedCategory === cat
-                  ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-400 hover:text-white'
-              }`}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
+        {/* Filters */}
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-center gap-4 flex-wrap">
+          {/* Category buttons */}
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-5 py-2 rounded-lg font-semibold transition-all duration-200 border ${
+                  selectedCategory === cat
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-400 hover:text-white'
+                }`}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Search input */}
+          <div className="relative w-full md:w-64">
+            <Search
+              className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
+            />
+          </div>
+
+          {/* Weight filter */}
+          <div className="flex flex-wrap gap-2">
+            {weightOptions.map((weight) => (
+              <button
+                key={weight}
+                onClick={() => setSelectedWeight(weight)}
+                className={`px-3 py-1 rounded-lg font-medium transition-all duration-200 border ${
+                  selectedWeight === weight
+                    ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-400 hover:text-white'
+                }`}
+              >
+                {weight}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Search input */}
-        <div className="relative w-full md:w-64">
-          <Search className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" size={16} />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none transition"
-          />
-        </div>
-
-   
-
-        {/* Weight filter */}
-        <div className="flex flex-wrap gap-2">
-          {weightOptions.map((weight) => (
-            <button
-              key={weight}
-              onClick={() => setSelectedWeight(weight)}
-              className={`px-3 py-1 rounded-lg font-medium transition-all duration-200 border ${
-                selectedWeight === weight
-                  ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-orange-400 hover:text-white'
-              }`}
-            >
-              {weight}
-            </button>
-          ))}
-        </div>
+        {/* Product grid */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-10 text-lg">
+            No products found.
+          </p>
+        )}
       </div>
 
-      {/* Product grid */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} />
-          ))}
-        </div>
-      ) : (
-        <p className="text-center text-gray-500 mt-10 text-lg">No products found.</p>
-      )}
-    </div>
-    <WhyChooseSuswastik/>
+      {/* Why Choose Section */}
+      <WhyChooseSuswastik />
     </div>
   );
 }

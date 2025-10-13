@@ -125,7 +125,7 @@ export default function ProductCard({ product }) {
                 </span>
                 <button
                   onClick={() =>
-                    updateCart(Math.min(quantity + 1, product.stockQuantity))
+                    updateCart(() => updateCart(quantity + 1))
                   }
                   disabled={quantity >= product.stockQuantity}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors shadow-sm border font-bold ${
